@@ -53,7 +53,8 @@ function boot(D, rawJSON) {
     '<div class="hands">' + nails(isTV ? 1.0 : 0.62) + '</div></section>');
 
   // 2-4. Prestations
-  D.sections.forEach(function (s, i) {
+  var SECS = D.sections.filter(function (x) { return !x.hidden; });
+  SECS.forEach(function (s, i) {
     var rows = s.items.map(function (it) {
       return '<div class="row"><div class="name"><b>' + it.name + '</b><span>' + (it.note || "") + '</span></div>' +
         (it.time ? '<span class="time">' + it.time + '</span>' : "") + money(it) + "</div>";
@@ -133,6 +134,7 @@ function boot(D, rawJSON) {
     els[cur].classList.add("on");
     dotEls[cur].classList.add("on");
     schedule();
+    if (typeof pubSoon === "function") pubSoon();
   }
   function schedule() {
     clearTimeout(timer);
@@ -161,7 +163,7 @@ function boot(D, rawJSON) {
   }
   function photoCard(src) { return '<div class="pc photo" style="background-image:url(' + src + ')"></div>'; }
   var flat = [];
-  D.sections.forEach(function (s) { s.items.forEach(function (it) { flat.push({ kicker: s.kicker, it: it }); }); });
+  SECS.forEach(function (s) { s.items.forEach(function (it) { flat.push({ kicker: s.kicker, it: it }); }); });
   function svcCard(n) {
     var o = flat[n % flat.length];
     return '<div class="pc svc"><small>' + o.kicker + '</small><b>' + o.it.name + '</b><span>' + (o.it.from ? "dès " : "") + o.it.price + ' €</span></div>';
@@ -228,6 +230,7 @@ function boot(D, rawJSON) {
     document.body.classList.add("is-pano");
     pano.classList.add("on");
     setScene(0);
+    if (typeof pubSoon === "function") pubSoon();
     clearTimeout(panoT);
     panoT = setTimeout(function () { exitPano(); bump(loopMs()); }, PANO_MS);
   }
@@ -243,6 +246,67 @@ function boot(D, rawJSON) {
   var panoT = null, PANO_MS = (D.panoramaSeconds || 120) * 1000;
   function bump(ms) { clearTimeout(idleT); idleT = setTimeout(enterPano, ms || idleMs); }
   function loopMs() { var t = 0; for (var q = 0; q < els.length; q++) t += durOf(q); return t + 500; }
+
+  // ---------- Télécommande à distance (depuis l'appli du téléphone) ----------
+  // Messages simples (« next », « pause »…) échangés via un salon ntfy.sh à code secret ; aucune donnée personnelle.
+  var RC_BASE = "https://ntfy.sh/";
+  var rcCode = "";
+  try { rcCode = localStorage.getItem("qon-rc") || ""; } catch (e) {}
+  if (!rcCode) {
+    for (var rq = 0; rq < 8; rq++) rcCode += "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".charAt(Math.floor(Math.random() * 32));
+    try { localStorage.setItem("qon-rc", rcCode); } catch (e) {}
+  }
+  var rcTopic = "qon-" + rcCode.toLowerCase();
+  function pubState() {
+    try {
+      var st = { slide: cur, total: els.length, mode: mode, paused: paused, scene: sceneList[sceneIdx], t: Date.now() };
+      fetch(RC_BASE + rcTopic + "-s", { method: "POST", body: JSON.stringify(st) });
+    } catch (e) {}
+  }
+  var pubT = null;
+  function pubSoon() { clearTimeout(pubT); pubT = setTimeout(pubState, 400); }
+  function rcAct(c) {
+    if (c.cmd === "hello") { hidePair(); pubState(); return; }
+    bump();
+    if (c.cmd === "next" || c.cmd === "prev") {
+      if (mode === "pano") exitPano();
+      else show(cur + (c.cmd === "next" ? 1 : -1));
+    } else if (c.cmd === "goto") {
+      if (mode === "pano") exitPano();
+      show(parseInt(c.n, 10) || 0);
+    } else if (c.cmd === "pause") {
+      if (mode === "menu") togglePause();
+    } else if (c.cmd === "pano") { enterPano(); }
+    else if (c.cmd === "menu") { if (mode === "pano") exitPano(); }
+    else if (c.cmd === "scene") { if (mode === "pano") setScene(sceneIdx + 1); }
+    pubSoon();
+  }
+  var pairEl = document.createElement("div");
+  pairEl.id = "pair";
+  try {
+    var pq = qrcode(0, "M");
+    pq.addData(location.origin + location.pathname.replace(/[^\/]*$/, "") + "admin.html#rc=" + rcCode);
+    pq.make();
+    pairEl.innerHTML = '<div class="pq">' + pq.createSvgTag({ cellSize: 4, margin: 8, scalable: true }) + '</div><div><b>Télécommande</b><span>Scanne pour piloter la TV</span><em>' + rcCode + "</em></div>";
+  } catch (e) {}
+  document.body.appendChild(pairEl);
+  function hidePair() { pairEl.classList.remove("on"); }
+  setTimeout(function () { pairEl.classList.add("on"); }, 1500);
+  setTimeout(hidePair, 120000);
+  function rcListen() {
+    if (!window.EventSource) return;
+    var es;
+    try { es = new EventSource(RC_BASE + rcTopic + "/sse"); } catch (e) { return; }
+    es.onmessage = function (ev) {
+      try {
+        var m = JSON.parse(ev.data);
+        if (m.event !== "message") return;
+        rcAct(JSON.parse(m.message));
+      } catch (e) {}
+    };
+  }
+  rcListen();
+  var _show = show;
   window.addEventListener("keydown", function (e) {
     var k = e.keyCode;
     if (mode === "pano") { e.preventDefault(); exitPano(); bump(); return; }

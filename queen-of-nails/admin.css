@@ -63,3 +63,13 @@ pre.log{white-space:pre-wrap;font:12px/1.5 ui-monospace,Menlo,monospace;backgrou
 ol.how{padding-left:20px;font-size:14px;color:var(--ink-soft)}ol.how li{margin-top:6px}
 a{color:var(--rose-deep)}
 .pill{display:inline-block;font:600 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;background:var(--petal);color:var(--rose-deep);border-radius:10px;padding:5px 8px;margin-left:8px}
+
+.pad{display:grid;grid-template-columns:1fr 1fr;grid-gap:10px}
+.pad .btn{min-height:64px;font-size:17px}
+.pad .wide{grid-column:1/-1}
+.live{display:flex;align-items:center;padding:10px 12px;border-radius:12px;background:var(--blush);font-size:14px;color:var(--ink-soft);margin-bottom:12px}
+.live i{width:10px;height:10px;border-radius:50%;background:var(--nude);margin-right:10px;flex:none}
+.live.on i{background:var(--ok)}
+select{width:100%;font:400 16px/1.3 var(--body);color:var(--ink);background:var(--blush);border:1px solid var(--line);border-radius:12px;padding:12px}
+.slides .btn{width:100%;text-align:left;margin-top:8px}
+.slides .btn.cur{background:var(--rose-deep);color:#fff;border-color:var(--rose-deep)}

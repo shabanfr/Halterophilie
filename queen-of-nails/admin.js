@@ -12,6 +12,7 @@
     { id: "couleurs", name: "Catalogue : les couleurs" },
     { id: "designs", name: "Catalogue : les designs" }
   ];
+  var ARTS = [["", "Automatique"], ["manucure", "Manucure"], ["pose", "Pose gel / capsules"], ["art", "Nail art"], ["pedicure", "Pédicure"], ["soin", "Soin des mains"], ["depose", "Dépose"], ["defaut", "Couronne Queen of Nails"]];
   var state = null;            // contenu en cours d'édition
   var pending = {};            // chemin -> dataURL des nouvelles photos
   var cfg = { owner: "", repo: "", branch: "master", dir: "queen-of-nails/", token: "" };
@@ -42,6 +43,8 @@
   // ---------- état initial : brouillon > data.json publié > data.js ----------
   function init() {
     loadCfg();
+    var hm = /[#&]rc=([A-Za-z0-9]{6,12})/.exec(location.hash);
+    if (hm) { rcCode = hm[1].toUpperCase(); lsSet("qon-rc", rcCode); tab = "tele"; }
     var draft = lsGet("qon-draft");
     if (draft) {
       try { var d = JSON.parse(draft); state = d.state; pending = d.pending || {}; dirty = true; } catch (e) {}
@@ -83,7 +86,9 @@
     state.sections.forEach(function (s, si) {
       h += '<section class="card"><h3>Catégorie ' + (si + 1) + '</h3>' +
         field("Titre", "sections." + si + ".title") + field("Sous-titre (petit texte au-dessus)", "sections." + si + ".kicker") +
-        '<label>Phrase d’accroche</label><textarea data-k="sections.' + si + '.intro" rows="2">' + esc(s.intro) + '</textarea>';
+        '<label>Phrase d’accroche</label><textarea data-k="sections.' + si + '.intro" rows="2">' + esc(s.intro) + '</textarea>' +
+        '<label class="chk"><input type="checkbox" data-show="sections.' + si + '.hidden"' + (s.hidden ? "" : " checked") + '>Afficher cette catégorie sur la TV</label>' +
+        '<label>Illustration animée</label><select data-k="sections.' + si + '.art">' + ARTS.map(function (a) { return '<option value="' + a[0] + '"' + ((s.art || "") === a[0] ? " selected" : "") + '>' + a[1] + "</option>"; }).join("") + "</select>";
       s.items.forEach(function (it, ii) {
         var b = "sections." + si + ".items." + ii;
         h += '<div class="item">' + field("Prestation", b + ".name") + field("Détail (facultatif)", b + ".note") +
@@ -142,6 +147,58 @@
       field("Téléphone", "contact.phone") + field("Instagram", "contact.instagram", "text", ' placeholder="@queenofnails"') +
       field("Adresse", "contact.address") + field("Horaires", "contact.hours", "text", ' placeholder="Mar–Sam 9h–19h"') + "</section>";
   }
+  // ---------- télécommande ----------
+  var RC = "https://ntfy.sh/", rcCode = lsGet("qon-rc") || "", tvState = null, es = null, esCode = "";
+  function slideNames() {
+    var n = ["Accueil"];
+    state.sections.filter(function (x) { return !x.hidden; }).forEach(function (x) { n.push(x.title); });
+    n.push("QR code");
+    return n;
+  }
+  function send(cmd, n) {
+    if (!rcCode) { say("Scanne le code sur la TV ou saisis-le.", "err"); return; }
+    var o = { cmd: cmd }; if (n != null) o.n = n;
+    fetch(RC + "qon-" + rcCode.toLowerCase(), { method: "POST", body: JSON.stringify(o) })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); })
+      .catch(function () { say("Commande non envoyée (connexion ?).", "err"); });
+  }
+  function listen() {
+    if (!rcCode || !window.EventSource || (es && esCode === rcCode)) return;
+    if (es) es.close();
+    esCode = rcCode;
+    try {
+      es = new EventSource(RC + "qon-" + rcCode.toLowerCase() + "-s/sse");
+      es.onmessage = function (ev) {
+        try { var m = JSON.parse(ev.data); if (m.event !== "message") return; tvState = JSON.parse(m.message); if (tab === "tele") paintLive(); } catch (e) {}
+      };
+    } catch (e) {}
+  }
+  function paintLive() {
+    var el = $("#live"); if (!el) return;
+    var fresh = tvState && Date.now() - tvState.t < 3 * 3600 * 1000;
+    el.className = "live" + (fresh ? " on" : "");
+    el.querySelector("span").textContent = fresh
+      ? (tvState.mode === "pano" ? "TV : panorama" + (tvState.scene ? " · " + tvState.scene : "") : "TV : diapo " + (tvState.slide + 1) + "/" + tvState.total + (tvState.paused ? " · en pause" : ""))
+      : "TV : en attente de réponse…";
+    Array.prototype.forEach.call(document.querySelectorAll("#slides .btn"), function (b) {
+      b.classList.toggle("cur", !!(fresh && tvState.mode === "menu" && Number(b.getAttribute("data-n")) === tvState.slide));
+    });
+  }
+  function viewTele() {
+    var h = '<h2>Ma <em>télécommande</em></h2><p class="hint">Pilote la TV depuis ton téléphone, sans la télécommande.</p>';
+    if (!rcCode) {
+      return h + '<section class="card"><h3>Jumelage <span class="pill">une seule fois</span></h3><p class="hint">Sur la TV, scanne le petit code qui s’affiche en haut à droite (il apparaît au démarrage). Ou saisis ici le code de 8 lettres affiché dessous.</p>' +
+        '<label>Code de la TV</label><input type="text" id="rcin" autocapitalize="characters" autocomplete="off" placeholder="ABCD2345">' +
+        '<button class="btn primary" type="button" data-act="rc-save" style="width:100%;margin-top:12px">Associer</button></section>';
+    }
+    h += '<div class="live" id="live"><i></i><span>TV : en attente de réponse…</span></div>' +
+      '<section class="card"><div class="pad"><button class="btn" type="button" data-rc="prev">◀ Précédent</button><button class="btn" type="button" data-rc="next">Suivant ▶</button>' +
+      '<button class="btn" type="button" data-rc="pause">⏯ Pause / Reprise</button><button class="btn" type="button" data-rc="scene">Scène suivante</button>' +
+      '<button class="btn primary" type="button" data-rc="pano">Mode panorama</button><button class="btn primary" type="button" data-rc="menu">Retour au menu</button></div></section>' +
+      '<section class="card slides" id="slides"><h3>Aller à une diapo</h3>';
+    slideNames().forEach(function (n, i) { h += '<button class="btn" type="button" data-rc="goto" data-n="' + i + '">' + (i + 1) + ". " + esc(n) + "</button>"; });
+    return h + '</section><button class="btn ghost" type="button" data-act="rc-forget">Dissocier cette TV</button>';
+  }
   function viewPublier() {
     var n = Object.keys(pending).length;
     return '<h2>Mettre à jour <em>la TV</em></h2><p class="hint">' + (dirty ? "Tu as des modifications non publiées" + (n ? " (dont " + n + " nouvelle(s) photo(s))" : "") + "." : "Tout est publié.") + '</p>' +
@@ -159,7 +216,8 @@
   }
   function render() {
     var y = window.scrollY;
-    $("#view").innerHTML = ({ prestations: viewPrestations, pano: viewPano, photos: viewPhotos, infos: viewInfos, publier: viewPublier })[tab]();
+    $("#view").innerHTML = ({ prestations: viewPrestations, pano: viewPano, photos: viewPhotos, infos: viewInfos, tele: viewTele, publier: viewPublier })[tab]();
+    if (tab === "tele") { listen(); send("hello"); paintLive(); }
     Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function (b) { b.classList.toggle("on", b.getAttribute("data-tab") === tab); });
     window.scrollTo(0, y);
     badge();
@@ -178,7 +236,8 @@
     if (c) { cfg[c] = t.value.trim(); lsSet("qon-cfg", JSON.stringify(cfg)); }
   });
   document.addEventListener("change", function (e) {
-    var t = e.target, ck = t.getAttribute("data-chk");
+    var t = e.target, ck = t.getAttribute("data-chk"), sh = t.getAttribute("data-show");
+    if (sh) { setPath(state, sh, !t.checked); saveDraft(); return; }
     if (ck) { setPath(state, ck, t.checked); saveDraft(); return; }
     var sc = t.getAttribute("data-scene");
     if (sc) {
@@ -196,6 +255,8 @@
   $("#quickPublish").addEventListener("click", function () { tab = "publier"; render(); window.scrollTo(0, 0); publish(); });
   document.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
+    var rcmd = b.getAttribute("data-rc");
+    if (rcmd) { send(rcmd, rcmd === "goto" ? Number(b.getAttribute("data-n")) : null); return; }
     var st = b.getAttribute("data-step");
     if (st) {
       var cur = Number(getPath(state, st)) || 0, d = Number(b.getAttribute("data-d")), mn = Number(b.getAttribute("data-min"));
@@ -216,6 +277,8 @@
       if (j >= 0) { move(arr2, j, a === "scene-up" ? -1 : 1); state.panoScenes = arr2; }
     }
     else if (a === "ph-del") { var i2 = Number(b.getAttribute("data-i")), p = state.gallery[i2]; state.gallery.splice(i2, 1); delete pending[p]; }
+    else if (a === "rc-save") { var v = ($("#rcin").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, ""); if (v.length < 6) { say("Code trop court.", "err"); return; } rcCode = v; lsSet("qon-rc", v); say("TV associée ✔", "ok"); render(); return; }
+    else if (a === "rc-forget") { rcCode = ""; try { localStorage.removeItem("qon-rc"); } catch (e) {} if (es) { es.close(); es = null; esCode = ""; } render(); return; }
     else if (a === "export") { copy(JSON.stringify(state, null, 2)); return; }
     else if (a === "import") { importJSON(); return; }
     else if (a === "reset") { resetAll(); return; }
