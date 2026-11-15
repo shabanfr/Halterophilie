@@ -7,6 +7,7 @@
   var DEFAULTS = JSON.parse(JSON.stringify(window.QON));
   var SCENES = [
     { id: "mix", name: "Mélange (photos, tarifs, citations)" },
+    { id: "realisations", name: "Mes réalisations (photos en grand)" },
     { id: "formes", name: "Catalogue : les formes" },
     { id: "longueurs", name: "Catalogue : les longueurs" },
     { id: "couleurs", name: "Catalogue : les couleurs" },
@@ -181,6 +182,7 @@
   function slideNames() {
     var n = ["Accueil"];
     state.sections.filter(function (x) { return !x.hidden; }).forEach(function (x) { n.push(x.title); });
+    if ((state.gallery || []).length) n.push("Réalisations");
     n.push("QR code");
     return n;
   }

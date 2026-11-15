@@ -68,6 +68,15 @@ function boot(D, rawJSON) {
       '<div class="right"><div class="list">' + rows + '</div></div></section>');
   });
 
+  // 4b. Réalisations (si des photos ont été ajoutées)
+  var GAL = D.gallery || [];
+  if (GAL.length) {
+    slides.push('<section class="slide menu gal">' + top() +
+      '<div class="left"><div class="kicker">' + esc2(D.galleryKicker, "Nos réalisations") + '</div><h2>' + titleHTML(esc2(D.galleryTitle, "Vos plus belles créations")) +
+      '</h2><p class="intro">' + esc2(D.galleryText, "Chaque ongle est unique, comme vous.") + '</p></div>' +
+      '<div class="right"><div class="gal-row"></div></div></section>');
+  }
+
   // 5. Réservation / installation
   var c = D.contact || {};
   var lines = "";
@@ -86,6 +95,16 @@ function boot(D, rawJSON) {
 
   stage.innerHTML = slides.join("");
   var els = stage.getElementsByClassName("slide");
+  var galOff = 0;
+  function galFill(el) {
+    var row = el.querySelector(".gal-row");
+    if (!row || !GAL.length) return;
+    var n = Math.min(4, GAL.length), h = "";
+    for (var gi = 0; gi < n; gi++) h += '<div class="gal-ph" style="background-image:url(' + GAL[(galOff + gi) % GAL.length] + ')"></div>';
+    galOff = (galOff + n) % GAL.length;
+    row.innerHTML = h;
+  }
+  for (var gk = 0; gk < els.length; gk++) if (/\bgal\b/.test(els[gk].className)) galFill(els[gk]);
 
   // QR code vers l'adresse de l'appli
   try {
@@ -122,7 +141,7 @@ function boot(D, rawJSON) {
   var dotEls = dots.getElementsByTagName("i");
   var cur = -1, timer = null, paused = false, dur = (D.slideSeconds || 11) * 1000;
 
-  function durOf(i) { var c = els[i].className; return ((/menu/.test(c) ? 16 : /book/.test(c) ? 12 : 7) * (D.slideSeconds || 11) / 11) * 1000; }
+  function durOf(i) { var c = els[i].className; return ((/\bgal\b/.test(c) ? 10 : /menu/.test(c) ? 16 : /book/.test(c) ? 12 : 7) * (D.slideSeconds || 11) / 11) * 1000; }
   function runBar() {
     bar.className = "";
     void bar.offsetWidth;
@@ -130,10 +149,12 @@ function boot(D, rawJSON) {
     bar.className = "run" + (paused ? " paused" : "");
   }
   function show(i) {
+    if (typeof newData !== "undefined" && newData && navigator.onLine && cur >= 0) { location.reload(); return; }
     i = (i + els.length) % els.length;
     if (cur >= 0) { els[cur].classList.remove("on"); dotEls[cur].classList.remove("on"); }
     cur = i;
     dur = durOf(cur);
+    if (/\bgal\b/.test(els[cur].className)) galFill(els[cur]);
     els[cur].classList.add("on");
     dotEls[cur].classList.add("on");
     schedule();
@@ -195,6 +216,10 @@ function boot(D, rawJSON) {
   var pano = document.createElement("section");
   pano.id = "pano";
   var cat = (window.QONCatalog && window.QONCatalog.scenes) ? window.QONCatalog.scenes(D) : [];
+  if (GAL.length) {
+    cat.push({ id: "realisations", html: '<div class="cat-scene gal-scene"><div class="gs-h"><span>Nos réalisations</span><b>Vos plus belles <em>créations</em></b></div>' +
+      '<div class="gs-frames"><i class="gs-f gs-l"></i><i class="gs-f gs-c"></i><i class="gs-f gs-r"></i></div></div>' });
+  }
   var catHTML = "";
   for (var ci = 0; ci < cat.length; ci++) catHTML += cat[ci].html;
   pano.innerHTML = top() + '<div class="rows">' + rowHTML(0) + rowHTML(2) + '</div><div class="scenes">' + catHTML + "</div>" +
@@ -207,16 +232,30 @@ function boot(D, rawJSON) {
   var sceneList = wanted.filter(function (id) { return id === "mix" || catEls[id]; });
   if (!sceneList.length) sceneList = ["mix"];
   var sceneIdx = 0, sceneT = null, sceneMs = (D.panoSceneSeconds || 25) * 1000;
+  var galT = null, galK = 0;
+  function galTick() {
+    var fr = pano.querySelectorAll(".gs-f");
+    if (!fr.length || !GAL.length) return;
+    for (var q = 0; q < fr.length; q++) {
+      fr[q].style.backgroundImage = "url(" + GAL[(galK + q) % GAL.length] + ")";
+      fr[q].className = fr[q].className.replace(/ gs-in/g, "");
+      void fr[q].offsetWidth;
+      fr[q].className += " gs-in";
+    }
+    galK = (galK + 1) % GAL.length;
+  }
   function setScene(i) {
     sceneIdx = i % sceneList.length;
     var id = sceneList[sceneIdx];
+    clearInterval(galT);
+    if (id === "realisations") { galTick(); galT = setInterval(galTick, 5000); }
     pano.classList.toggle("scene-other", id !== "mix");
     for (var k in catEls) catEls[k].classList.toggle("on", k === id);
     clearTimeout(sceneT);
     if (sceneList.length > 1) sceneT = setTimeout(function () { setScene(sceneIdx + 1); }, sceneMs);
   }
   function clearScenes() {
-    clearTimeout(sceneT);
+    clearTimeout(sceneT); clearInterval(galT);
     for (var k in catEls) catEls[k].classList.remove("on");
     pano.classList.remove("scene-other");
   }
@@ -226,7 +265,7 @@ function boot(D, rawJSON) {
       fetch("data.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; })
         .then(function (t) { if (t !== rawJSON) newData = true; });
     } catch (e) {}
-  }, 5 * 60 * 1000);
+  }, 15 * 1000);
 
   var mode = "menu", idleT = null, idleMs = (D.panoramaAfterMinutes || 3) * 60000;
   function enterPano() {

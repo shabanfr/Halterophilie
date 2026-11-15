@@ -205,3 +205,23 @@ html.phone #pair{display:none}
 .menu .art-wrap{margin-top:1.8rem;width:28rem;overflow:hidden}
 .menu .art-wrap .sa-svg{overflow:hidden}
 html.phone .menu .art-wrap{display:none}
+
+/* ---------- Réalisations (photos) ---------- */
+.gal-row{display:flex;align-items:center;justify-content:flex-end}
+.gal-ph{width:22rem;height:36rem;margin-left:2rem;border-radius:2.2rem;background-size:cover;background-position:center 30%;background-color:var(--petal);box-shadow:0 1.2rem 2.4rem rgba(168,86,107,.2);flex:none}
+html.tv .gal.on .gal-ph{animation:galIn .8s cubic-bezier(.2,.7,.2,1) both}
+html.tv .gal.on .gal-ph:nth-child(2){animation-delay:.12s}html.tv .gal.on .gal-ph:nth-child(3){animation-delay:.24s}html.tv .gal.on .gal-ph:nth-child(4){animation-delay:.36s}
+@keyframes galIn{from{opacity:0;transform:translate3d(0,2rem,0)}to{opacity:1;transform:none}}
+html.phone .gal-row{flex-wrap:wrap;justify-content:center}
+html.phone .gal-ph{width:46%;height:16rem;margin:.5rem 2%}
+.gal-scene{justify-content:center}
+.gal-scene .gs-h{position:absolute;left:6rem;top:0}
+.gal-scene .gs-h span{display:block;font:500 1.4rem/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep)}
+.gal-scene .gs-h b{display:block;margin-top:1rem;font:400 4.6rem/1 var(--display)}
+.gal-scene .gs-h em{font-style:italic;color:var(--rose-deep)}
+.gal-scene .gs-frames{position:absolute;left:0;right:0;top:9rem;bottom:0;display:flex;align-items:center;justify-content:center}
+.gal-scene .gs-f{display:block;width:22rem;height:28rem;margin:0 1.6rem;border-radius:2.4rem;background-size:cover;background-position:center 30%;background-color:var(--petal);box-shadow:0 1.2rem 2.4rem rgba(168,86,107,.22);flex:none}
+.gal-scene .gs-c{width:26rem;height:32rem}
+.gal-scene .gs-l{transform:rotate(-3deg)}.gal-scene .gs-r{transform:rotate(3deg)}
+.gal-scene .gs-in{animation:gsIn 1s ease both}
+@keyframes gsIn{from{opacity:0}to{opacity:1}}
