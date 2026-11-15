@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Queen of Nails – Gestion</title>
+<link rel="manifest" href="admin.webmanifest">
+<meta name="theme-color" content="#F8E6E2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QoN Gestion">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Outfit:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="bar">
+  <div class="brand"><img src="icons/mark.svg" alt="" width="44" height="37"><div><b>Queen <em>of</em> Nails</b><small>Gestion de l’écran</small></div></div>
+  <button id="quickPublish" class="btn small primary" type="button">Publier</button>
+</header>
+<div id="status" class="status" hidden></div>
+
+<nav class="tabs" id="tabs" role="tablist">
+  <button type="button" data-tab="prestations" class="on">Prestations</button>
+  <button type="button" data-tab="pano">Panorama</button>
+  <button type="button" data-tab="photos">Photos</button>
+  <button type="button" data-tab="infos">Infos</button>
+  <button type="button" data-tab="publier">Publier</button>
+</nav>
+
+<main id="view"></main>
+
+<script src="data.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

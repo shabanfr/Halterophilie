@@ -6,6 +6,9 @@ window.QON = {
   slideSeconds: 11,
   // Mode panorama : s'active seul après X minutes sans toucher la télécommande
   panoramaAfterMinutes: 3,
+  panoramaSeconds: 120,      // durée totale du panorama avant retour au menu
+  panoSceneSeconds: 25,      // durée de chaque scène du panorama
+  panoScenes: ["mix", "formes", "longueurs", "couleurs", "designs"],  // ordre / scènes actives
   // Photos de réalisations (chemins relatifs, ex. "photos/01.jpg"). Vide = décors générés.
   gallery: [],
   quotes: ["Des ongles qui vous ressemblent.", "Prenez un moment pour vous.", "Le détail qui change tout.", "Chaque ongle, une petite œuvre."],

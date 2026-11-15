@@ -1,6 +1,5 @@
 /* Queen of Nails — affichage TV + appli téléphone (PWA). Sans dépendance (hors qr.js). */
-(function () {
-  var D = window.QON;
+function boot(D, rawJSON) {
   var qs = location.search;
   var isTV = window.innerWidth >= 1100 || /[?&]tv=1/.test(qs) || /Android TV|AFT|BRAVIA|SmartTV|Fully/i.test(navigator.userAgent);
   if (/[?&]phone=1/.test(qs)) isTV = false;
@@ -185,19 +184,50 @@
   }
   var pano = document.createElement("section");
   pano.id = "pano";
-  pano.innerHTML = top() + '<div class="rows">' + rowHTML(0) + rowHTML(2) + "</div>" +
+  var cat = (window.QONCatalog && window.QONCatalog.scenes) ? window.QONCatalog.scenes(D) : [];
+  var catHTML = "";
+  for (var ci = 0; ci < cat.length; ci++) catHTML += cat[ci].html;
+  pano.innerHTML = top() + '<div class="rows">' + rowHTML(0) + rowHTML(2) + '</div><div class="scenes">' + catHTML + "</div>" +
     (qrSVG ? '<div class="pqr">' + qrSVG + "<span>Nos tarifs</span></div>" : "");
   document.body.appendChild(pano);
+
+  var catEls = {}, catNodes = pano.querySelectorAll(".scenes .cat-scene");
+  for (var cj = 0; cj < cat.length && cj < catNodes.length; cj++) catEls[cat[cj].id] = catNodes[cj];
+  var wanted = (D.panoScenes && D.panoScenes.length) ? D.panoScenes : ["mix", "formes", "longueurs", "couleurs", "designs"];
+  var sceneList = wanted.filter(function (id) { return id === "mix" || catEls[id]; });
+  if (!sceneList.length) sceneList = ["mix"];
+  var sceneIdx = 0, sceneT = null, sceneMs = (D.panoSceneSeconds || 25) * 1000;
+  function setScene(i) {
+    sceneIdx = i % sceneList.length;
+    var id = sceneList[sceneIdx];
+    pano.classList.toggle("scene-other", id !== "mix");
+    for (var k in catEls) catEls[k].classList.toggle("on", k === id);
+    clearTimeout(sceneT);
+    if (sceneList.length > 1) sceneT = setTimeout(function () { setScene(sceneIdx + 1); }, sceneMs);
+  }
+  function clearScenes() {
+    clearTimeout(sceneT);
+    for (var k in catEls) catEls[k].classList.remove("on");
+    pano.classList.remove("scene-other");
+  }
+  var newData = false;
+  setInterval(function () {
+    try {
+      fetch("data.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; })
+        .then(function (t) { if (t !== rawJSON) newData = true; });
+    } catch (e) {}
+  }, 5 * 60 * 1000);
 
   var mode = "menu", idleT = null, idleMs = (D.panoramaAfterMinutes || 3) * 60000;
   function enterPano() {
     if (mode === "pano") return;
     mode = "pano";
-    if (navigator.onLine && Date.now() - t0 > 6 * 3600 * 1000) { location.reload(); return; }
+    if (navigator.onLine && (newData || Date.now() - t0 > 6 * 3600 * 1000)) { location.reload(); return; }
     clearTimeout(timer);
     bar.className = "";
     document.body.classList.add("is-pano");
     pano.classList.add("on");
+    setScene(0);
     clearTimeout(panoT);
     panoT = setTimeout(function () { exitPano(); bump(loopMs()); }, PANO_MS);
   }
@@ -206,6 +236,8 @@
     mode = "menu";
     document.body.classList.remove("is-pano");
     pano.classList.remove("on");
+    clearScenes();
+    if (newData && navigator.onLine) { location.reload(); return; }
     show(0);
   }
   var panoT = null, PANO_MS = (D.panoramaSeconds || 120) * 1000;
@@ -224,9 +256,22 @@
   var t0 = Date.now();
 
   if ("serviceWorker" in navigator) try { navigator.serviceWorker.register("sw.js"); } catch (e) {}
-  var start = /[?&]slide=(\d+)/.exec(qs);
-  show(start ? parseInt(start[1], 10) : 0);
+  var sl = /[?&]slide=(\d+)/.exec(qs);
+  show(sl ? parseInt(sl[1], 10) : 0);
   bump();
   if (/[?&]pano=1/.test(qs)) enterPano();
   if (/[?&]still=1/.test(qs)) { paused = true; clearTimeout(timer); bar.className = "run paused"; }
+}
+
+/* Contenu = data.js (valeurs par défaut) + data.json (modifié depuis l'appli d'administration). */
+(function () {
+  var base = window.QON, raw = "";
+  function merge(j) { var o = {}, k; for (k in base) o[k] = base[k]; for (k in j) o[k] = j[k]; return o; }
+  function go(j) { boot(j ? merge(j) : base, raw); }
+  try {
+    fetch("data.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (t) { raw = t; var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {} go(j); })
+      .catch(function () { go(null); });
+  } catch (e) { go(null); }
 })();
