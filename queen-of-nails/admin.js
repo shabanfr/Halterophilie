@@ -359,7 +359,13 @@
       body: body ? JSON.stringify(body) : undefined
     }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, json: j }; }); });
   }
+  // Mode test local (serveur de développement sur localhost / réseau Tailscale) : écrit directement les fichiers.
+  var isLocal = /^(localhost|127\.|100\.)/.test(location.hostname);
   function putFile(rel, content64, msg) {
+    if (isLocal) {
+      return fetch("/__save", { method: "POST", body: JSON.stringify({ path: rel, b64: content64 }) })
+        .then(function (r) { if (!r.ok) throw new Error("enregistrement local refusé (" + r.status + ")"); });
+    }
     var path = cfg.dir + rel;
     return api("GET", path).then(function (g) {
       var body = { message: msg, content: content64, branch: cfg.branch };
@@ -373,7 +379,7 @@
   var busy = false;
   function publish() {
     if (busy) return;
-    if (!cfg.token) { tab = "publier"; render(); say("Colle d’abord ton jeton GitHub (section Connexion).", "err"); return; }
+    if (!cfg.token && !isLocal) { tab = "publier"; render(); say("Colle d’abord ton jeton GitHub (section Connexion).", "err"); return; }
     busy = true; say("Publication en cours…");
     var paths = Object.keys(pending), chain = Promise.resolve(), l = $("#log"); if (l) l.textContent = "";
     paths.forEach(function (p) {
