@@ -143,10 +143,14 @@
     return h + "</div>";
   }
   function viewInfos() {
+    state.qr = state.qr || JSON.parse(JSON.stringify(DEFAULTS.qr));
     return '<h2>Tes <em>infos</em></h2><p class="hint">Affichées sur la dernière diapo. Laisse vide pour ne rien montrer.</p><section class="card">' +
       field("Nom", "brand") + field("Slogan", "tagline") + '</section><section class="card"><h3>Contact</h3>' +
       field("Téléphone", "contact.phone") + field("Instagram", "contact.instagram", "text", ' placeholder="@queenofnails"') +
-      field("Adresse", "contact.address") + field("Horaires", "contact.hours", "text", ' placeholder="Mar–Sam 9h–19h"') + "</section>";
+      field("Adresse", "contact.address") + field("Horaires", "contact.hours", "text", ' placeholder="Mar–Sam 9h–19h"') + "</section>" +
+      '<section class="card"><h3>QR code de la TV</h3><p class="hint">Les clientes le scannent avec leur téléphone. Mets le lien de ton choix : Instagram, réservation, avis Google… Laisse vide pour le site lui-même.</p>' +
+      field("Lien du QR code", "qr.url", "url", ' placeholder="https://instagram.com/…"') + field("Petit titre", "qr.kicker") + field("Titre", "qr.title") +
+      field("Texte", "qr.text") + field("Libellé du mini QR (panorama)", "qr.label") + "</section>";
   }
   function viewMusique() {
     var m = state.music = state.music || { enabled: true, volume: 30, shuffle: true, tracks: [] };

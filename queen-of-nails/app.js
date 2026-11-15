@@ -43,7 +43,8 @@ function boot(D, rawJSON) {
     return parts.join(" ") + " <em>" + last + "</em>";
   }
 
-  var slides = [], qrSVG = "";
+  var slides = [], qrSVG = "", QQ = D.qr || {};
+  function esc2(v, d) { return String(v || d).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 
   // 1. Hero
   slides.push('<section class="slide hero">' +
@@ -74,9 +75,9 @@ function boot(D, rawJSON) {
   if (c.hours) lines += "<li><b>Horaires</b>" + c.hours + "</li>";
   slides.push('<section class="slide book">' + top() +
     '<div class="qr" id="qr"></div>' +
-    '<div class="txt"><div class="kicker">Garde-nous dans ta poche</div>' +
-    '<h2>Scanne &amp; <em>retrouve</em> nos tarifs</h2>' +
-    '<p>Vise le code avec l’appareil photo de ton téléphone.</p>' +
+    '<div class="txt"><div class="kicker">' + esc2(QQ.kicker, "Garde-nous dans ta poche") + '</div>' +
+    '<h2>' + titleHTML(esc2(QQ.title, "Scanne & retrouve nos tarifs")) + '</h2>' +
+    '<p>' + esc2(QQ.text, "Vise le code avec l’appareil photo de ton téléphone.") + '</p>' +
     (lines ? "<ul>" + lines + "</ul>" : "") +
     '<div class="install"><b>iPhone :</b> bouton Partager, puis « Sur l’écran d’accueil ».<br><b>Android :</b> menu ⋮, puis « Installer l’application ».</div>' +
     '</div></section>');
@@ -86,7 +87,7 @@ function boot(D, rawJSON) {
 
   // QR code vers l'adresse de l'appli
   try {
-    var url = location.origin + location.pathname.replace(/index\.html$/, "");
+    var url = QQ.url || (location.origin + location.pathname.replace(/index\.html$/, ""));
     var qr = qrcode(0, "M");
     qr.addData(url);
     qr.make();
@@ -190,7 +191,7 @@ function boot(D, rawJSON) {
   var catHTML = "";
   for (var ci = 0; ci < cat.length; ci++) catHTML += cat[ci].html;
   pano.innerHTML = top() + '<div class="rows">' + rowHTML(0) + rowHTML(2) + '</div><div class="scenes">' + catHTML + "</div>" +
-    (qrSVG ? '<div class="pqr">' + qrSVG + "<span>Nos tarifs</span></div>" : "");
+    (qrSVG ? '<div class="pqr">' + qrSVG + "<span>" + esc2(QQ.label, "Nos tarifs") + "</span></div>" : "");
   document.body.appendChild(pano);
 
   var catEls = {}, catNodes = pano.querySelectorAll(".scenes .cat-scene");

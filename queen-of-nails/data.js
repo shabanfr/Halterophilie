@@ -36,6 +36,8 @@ window.QON = {
       { src: "music/sunny-side-up.mp3", title: "Sunny side up", on: true }
     ]
   },
+  // QR code affiché à la TV : lien au choix (Instagram, réservation, avis Google…). Vide = adresse de ce site.
+  qr: { url: "", kicker: "Garde-nous dans ta poche", title: "Scanne & retrouve nos tarifs", text: "Vise le code avec l’appareil photo de ton téléphone.", label: "Nos tarifs" },
   // Renseigner pour les afficher sur la dernière diapo (laisser "" pour masquer)
   contact: { phone: "", instagram: "", address: "", hours: "" },
   sections: [
