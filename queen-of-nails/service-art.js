@@ -46,7 +46,7 @@
     return "M" + n(-a * 0.52) + "," + n(L * 0.74) + " V" + n(L * 0.42) + " Q" + n(-a * 0.52) + "," + n(L * 0.2) + " " + n(-a * 0.18) + "," + n(L * 0.12);
   }
   function gloss(a, L, cls) {
-    return "<path" + (cls ? " class=\"" + cls + "\"" : "") + " d=\"" + glossD(a, L) + "\" fill=\"none\" stroke=\"#fff\" stroke-opacity=\".78\" stroke-width=\"" + n(Math.max(2.4, a * 0.2)) + "\" stroke-linecap=\"round\"/>";
+    return "<path" + (cls ? " class=\"" + cls + "\"" : "") + " d=\"" + glossD(a, L) + "\" fill=\"none\" stroke=\"#fff\" stroke-opacity=\"" + (a > 40 ? ".62" : ".78") + "\" stroke-width=\"" + n(Math.min(9, Math.max(2.4, a * 0.2))) + "\" stroke-linecap=\"round\"/>";
   }
 
   /* Contexte de scène : identifiants uniques + dégradés communs. */
@@ -72,7 +72,7 @@
      o : base, a, L, ext, fill ("n" naturel | "r" verni | couleur), inner (HTML rogné dans l'ongle), over (HTML par-dessus), bare */
   function finger(c, x, tip, w, o) {
     o = o || {};
-    var r = w / 2, base = o.base || H + 10, a = o.a || r - 6, L = o.L || w * 1.22, ext = o.ext == null ? 10 : o.ext;
+    var r = w / 2, base = o.base || H, a = o.a || r - 6, L = o.L || w * 1.22, ext = o.ext == null ? 10 : o.ext;
     var fill = o.fill || "n", f = fill.charAt(0) === "#" ? fill : url(c, fill), s, cid;
     s = "<path d=\"M" + n(x - r) + "," + base + " L" + n(x - r) + "," + n(tip + r) + " A" + n(r) + "," + n(r) + " 0 0 1 " + n(x + r) + "," + n(tip + r) + " L" + n(x + r) + "," + base +
       "\" fill=\"" + url(c, "k") + "\" stroke=\"" + url(c, "e") + "\" stroke-width=\"1.6\"/>";
@@ -100,17 +100,17 @@
       "<rect x=\"-2.2\" y=\"-60\" width=\"4.4\" height=\"36\" fill=\"#D9C3BA\"/>" +
       "<path d=\"M-6.5,-27 L6.5,-27 L4.5,-3 Q0,3 -4.5,-3Z\" fill=\"" + mix(c.color, "#5A1830", 0.12) + "\"/>" +
       "<path d=\"M-2.5,-25 L-1.6,-4\" stroke=\"#fff\" stroke-opacity=\".6\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>" +
-      "<rect x=\"-14\" y=\"-146\" width=\"28\" height=\"88\" rx=\"10\" fill=\"" + url(c, "g") + "\"/>" +
+      "<rect x=\"-14\" y=\"-134\" width=\"28\" height=\"76\" rx=\"10\" fill=\"" + url(c, "g") + "\"/>" +
       "<rect x=\"-14\" y=\"-72\" width=\"28\" height=\"14\" rx=\"5\" fill=\"#A67C55\" opacity=\".55\"/>" +
-      "<path d=\"M-7,-136 V-82\" stroke=\"#fff\" stroke-opacity=\".65\" stroke-width=\"3\" stroke-linecap=\"round\"/></g>";
+      "<path d=\"M-7,-124 V-82\" stroke=\"#fff\" stroke-opacity=\".65\" stroke-width=\"3\" stroke-linecap=\"round\"/></g>";
   }
   /* Pinceau fin de nail art. */
   function linerBrush(c) {
     return "<g transform=\"rotate(34)\">" +
       "<path d=\"M-3,-22 L3,-22 L0,0Z\" fill=\"#3B2229\"/>" +
       "<rect x=\"-3.8\" y=\"-46\" width=\"7.6\" height=\"25\" rx=\"1.5\" fill=\"" + url(c, "g") + "\"/>" +
-      "<path d=\"M-4.4,-46 L4.4,-46 L2.6,-196 Q0,-203 -2.6,-196Z\" fill=\"#A8566B\"/>" +
-      "<path d=\"M-1.6,-52 L-1,-180\" stroke=\"#fff\" stroke-opacity=\".45\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></g>";
+      "<path d=\"M-4.4,-46 L4.4,-46 L2.6,-172 Q0,-179 -2.6,-172Z\" fill=\"#A8566B\"/>" +
+      "<path d=\"M-1.6,-52 L-1,-158\" stroke=\"#fff\" stroke-opacity=\".45\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></g>";
   }
 
   /* ---------- scènes ---------- */
@@ -123,7 +123,7 @@
       if (i === 1) {
         s += finger(c, xs[i], tips[i], w, {
           a: a, L: L, ext: 12,
-          inner: "<g transform=\"translate(0," + L + ")\"><rect class=\"sa-m-paint\" x=\"" + (-a) + "\" y=\"" + (-L) + "\" width=\"" + (2 * a) + "\" height=\"" + L + "\" fill=\"" + url(c, "r") + "\"/></g>",
+          inner: "<g transform=\"translate(0," + L + ")\"><rect class=\"sa-m-paint\" x=\"" + (-a) + "\" y=\"" + (-L) + "\" width=\"" + (2 * a) + "\" height=\"" + (L + 20) + "\" rx=\"" + (a - 3) + "\" fill=\"" + url(c, "r") + "\"/></g>",
           over: gloss(a, L, "sa-m-gl")
         });
       } else {
@@ -147,12 +147,12 @@
   /* Pose gel / capsules : les capsules se posent, la lampe UV s'allume. */
   SCENES.pose = function (c) {
     var xs = [176, 246, 316, 386], tips = [236, 208, 216, 248], w = 58, a = 23, L = 70, CL = 104, i, s = backdrop(c), id = c.id;
-    c.defs += "<radialGradient id=\"" + id + "h\" cx=\".5\" cy=\".12\" r=\".88\">" + stops([[0, "#C9A0FF", 0.85], [0.4, "#E3A2E6", 0.5], [0.75, "#F5B5D2", 0.2], [1, "#F5B5D2", 0]]) + "</radialGradient>" +
+    c.defs += "<radialGradient id=\"" + id + "h\" cx=\".5\" cy=\".5\" r=\".5\">" + stops([[0, "#C39AFF", 0.9], [0.35, "#DDA0EC", 0.55], [0.7, "#F5B5D2", 0.22], [1, "#F5B5D2", 0]]) + "</radialGradient>" +
       lin(id + "l", 0, 0, 0, 1, [[0, "#FFFFFF"], [0.6, "#FBEDEA"], [1, "#EFD2CE"]]) +
       lin(id + "v", 0, 0, 1, 0, [[0, "#D7A8FF"], [0.5, "#F4B6E4"], [1, "#D7A8FF"]]) +
       "<clipPath id=\"" + id + "q\"><rect x=\"0\" y=\"128\" width=\"560\" height=\"290\"/></clipPath>";
     /* halo */
-    s += "<g clip-path=\"url(#" + id + "q)\"><g transform=\"translate(280,128)\"><ellipse class=\"sa-p-halo\" cx=\"0\" cy=\"30\" rx=\"235\" ry=\"200\" fill=\"" + url(c, "h") + "\"/></g></g>";
+    s += "<g clip-path=\"url(#" + id + "q)\"><g transform=\"translate(280,128)\"><ellipse class=\"sa-p-halo\" cx=\"0\" cy=\"-6\" rx=\"200\" ry=\"236\" fill=\"" + url(c, "h") + "\"/></g></g>";
     for (i = 0; i < 4; i++) { s += finger(c, xs[i], tips[i], w, { a: a, L: L }); }
     /* capsules */
     s += "<g class=\"sa-p-caps\">";
@@ -177,7 +177,7 @@
 
   /* Nail art : pinceau fin, trait doré, fleur, points. */
   SCENES.art = function (c) {
-    var a = 78, L = 232, x = 280, tip = 106, ext = 34, i, s = backdrop(c), inner, fx = -14, fy = 88;
+    var a = 78, L = 232, x = 280, tip = 106, ext = 34, i, s = backdrop(c), inner, fx = 8, fy = 98;
     c.defs += lin(c.id + "a", 0, 0, 0, 1, [[0, "#FBE3DD"], [1, "#EDC3BC"]]);
     inner = "<g class=\"sa-a-all\">" +
       "<path class=\"sa-a-line\" d=\"M-56,198 C-12,180 34,172 56,126\" fill=\"none\" stroke=\"" + url(c, "g") + "\" stroke-width=\"5\" stroke-linecap=\"round\"/>" +
@@ -186,9 +186,9 @@
       inner += "<g transform=\"translate(" + fx + "," + fy + ") rotate(" + (i * 72) + ")\"><ellipse class=\"sa-a-pop sa-a-p" + (i + 1) + "\" cx=\"0\" cy=\"-19\" rx=\"11.5\" ry=\"17\" fill=\"#FFFFFF\" stroke=\"#D18B94\" stroke-opacity=\".55\" stroke-width=\"1.2\"/></g>";
     }
     inner += "<g transform=\"translate(" + fx + "," + fy + ")\"><circle class=\"sa-a-pop sa-a-p6\" r=\"7.5\" fill=\"" + url(c, "g") + "\"/></g>" +
-      "<g transform=\"translate(30,46)\"><circle class=\"sa-a-pop sa-a-p7\" r=\"6\" fill=\"#A8566B\"/></g>" +
-      "<g transform=\"translate(45,68)\"><circle class=\"sa-a-pop sa-a-p8\" r=\"4.8\" fill=\"#C9A06F\"/></g>" +
-      "<g transform=\"translate(54,90)\"><circle class=\"sa-a-pop sa-a-p9\" r=\"3.6\" fill=\"#A8566B\"/></g></g>";
+      "<g transform=\"translate(20,38)\"><circle class=\"sa-a-pop sa-a-p7\" r=\"6\" fill=\"#A8566B\"/></g>" +
+      "<g transform=\"translate(39,52)\"><circle class=\"sa-a-pop sa-a-p8\" r=\"4.8\" fill=\"#C9A06F\"/></g>" +
+      "<g transform=\"translate(52,72)\"><circle class=\"sa-a-pop sa-a-p9\" r=\"3.6\" fill=\"#A8566B\"/></g></g>";
     s += finger(c, x, tip, 188, { a: a, L: L, ext: ext, fill: "a", inner: inner });
     s += "<g transform=\"translate(" + x + "," + (tip - ext) + ")\"><g class=\"sa-a-brush\">" + linerBrush(c) + "</g></g>";
     s += spark(152, 120, 14, "sa-a-sp") + spark(410, 92, 10, "sa-a-sp sa-d2", "#D18B94") + spark(420, 250, 12, "sa-a-sp sa-d3") + spark(138, 262, 8, "sa-a-sp sa-d2", "#D18B94");
@@ -198,22 +198,26 @@
   /* Pédicure : pied, bain, pétales, bulles. */
   SCENES.pedicure = function (c) {
     var id = c.id, s = backdrop(c), i, t, nw, nh;
-    var toes = [[212, 132, 31, 39, -7], [270, 126, 20.5, 30, -2], [312, 140, 18.5, 27, 5], [349, 160, 17, 24, 11], [381, 186, 15.5, 21, 18]];
+    var toes = [[214, 130, 31, 42, -6], [270, 122, 20.5, 35, -2], [312, 136, 18.5, 32, 5], [349, 157, 17, 28, 11], [380, 184, 15.5, 24, 18]];
     var petal = "M0,-15 C11,-11 13,5 0,15 C-13,5 -11,-11 0,-15Z";
     c.defs += lin(id + "f", 0, 0, 0, 1, [[0, "#FBE2D7"], [0.45, "#F3CFC0"], [0.8, "#EEC4B3", 0.85], [1, "#EEC4B3", 0.25]]) +
       lin(id + "w", 0, 0, 0, 1, [[0, "#F3BFC6", 0.7], [1, "#E9A9B4", 0.55]]) +
       lin(id + "x", 0, 0, 0, 1, [[0, "#FFFFFF", 0.85], [1, "#FBE4E2", 0.6]]) +
       lin(id + "o", 0, 0, 0, 1, [[0, "#FFFFFF", 0.0], [1, "#FFFFFF", 0.95]]) +
-      "<clipPath id=\"" + id + "q\"><path d=\"M52,270 H508 V304 C508,372 420,394 280,394 C140,394 52,372 52,304Z\"/></clipPath>";
+      "<clipPath id=\"" + id + "q\"><path d=\"M52,262 H508 V304 C508,372 420,394 280,394 C140,394 52,372 52,304Z\"/></clipPath>";
     /* pétales qui tombent */
     s += "<g transform=\"translate(104,60)\"><path class=\"sa-f-fall\" d=\"" + petal + "\" fill=\"" + url(c, "r") + "\"/></g>" +
       "<g transform=\"translate(462,40)\"><path class=\"sa-f-fall sa-d2\" d=\"" + petal + "\" fill=\"#EFB7BE\"/></g>";
     /* pied */
-    s += "<path d=\"M186,400 C172,318 172,238 184,160 C204,150 236,150 256,152 C288,152 320,160 344,176 C366,190 388,206 396,218 C404,292 386,352 372,400Z\" fill=\"" + url(c, "f") + "\" stroke=\"" + url(c, "e") + "\" stroke-width=\"1.6\"/>";
     for (i = 0; i < toes.length; i++) {
-      t = toes[i]; nw = t[2] * 1.26; nh = t[3] * 0.94;
+      t = toes[i];
+      s += "<ellipse transform=\"translate(" + t[0] + "," + t[1] + ") rotate(" + t[4] + ")\" rx=\"" + t[2] + "\" ry=\"" + t[3] + "\" fill=\"#FAE0D4\" stroke=\"#D9A593\" stroke-opacity=\".6\" stroke-width=\"1.4\"/>";
+    }
+    s += "<path d=\"M226,400 C214,340 176,262 184,168 C190,148 232,146 258,150 C292,152 322,162 346,178 C370,192 392,208 398,226 C404,268 364,332 358,400Z\" fill=\"" + url(c, "f") + "\"/>" +
+      "<path d=\"M226,400 C214,340 176,262 184,168 M398,226 C404,268 364,332 358,400\" fill=\"none\" stroke=\"#D9A593\" stroke-opacity=\".55\" stroke-width=\"1.6\"/>";
+    for (i = 0; i < toes.length; i++) {
+      t = toes[i]; nw = t[2] * 1.26; nh = t[2] * 1.2;
       s += "<g transform=\"translate(" + t[0] + "," + t[1] + ") rotate(" + t[4] + ")\">" +
-        "<ellipse rx=\"" + t[2] + "\" ry=\"" + t[3] + "\" fill=\"#F8DACD\" stroke=\"#D9A593\" stroke-opacity=\".6\" stroke-width=\"1.4\"/>" +
         "<rect x=\"" + n(-nw / 2) + "\" y=\"" + n(-t[3] * 0.72) + "\" width=\"" + n(nw) + "\" height=\"" + n(nh) + "\" rx=\"" + n(nw * 0.36) + "\" fill=\"" + url(c, "r") + "\" stroke=\"#8E4A5C\" stroke-opacity=\".3\" stroke-width=\"1\"/>" +
         "<path d=\"M" + n(-nw * 0.26) + "," + n(-t[3] * 0.72 + nh * 0.72) + " V" + n(-t[3] * 0.72 + nh * 0.34) + "\" stroke=\"#fff\" stroke-opacity=\".8\" stroke-width=\"" + n(Math.max(2, nw * 0.11)) + "\" stroke-linecap=\"round\"/>" +
         "<rect class=\"sa-f-shine sa-f-s" + (i + 1) + "\" x=\"" + n(-nw / 2) + "\" y=\"" + n(-t[3] * 0.72) + "\" width=\"" + n(nw) + "\" height=\"" + n(nh) + "\" rx=\"" + n(nw * 0.36) + "\" fill=\"#fff\"/></g>";
@@ -222,7 +226,7 @@
     s += "<g clip-path=\"url(#" + id + "q)\">" +
       "<path class=\"sa-f-wave\" d=\"M-160,304 q40,-16 80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 V410 H-160Z\" fill=\"" + url(c, "w") + "\"/>" +
       "<path class=\"sa-f-wave sa-f-wave2\" d=\"M-160,326 q40,14 80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 t80,0 V410 H-160Z\" fill=\"" + url(c, "x") + "\"/></g>" +
-      "<path d=\"M52,300 V304 C52,372 140,394 280,394 C420,394 508,372 508,304 V300\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>" +
+      "<path d=\"M52,280 V304 C52,372 140,394 280,394 C420,394 508,372 508,304 V280\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>" +
       "<path d=\"M66,318 C74,360 130,380 220,386\" fill=\"none\" stroke=\"" + url(c, "g") + "\" stroke-width=\"1.8\" stroke-linecap=\"round\" opacity=\".7\"/>";
     /* pétales flottants */
     s += "<g transform=\"translate(112,306) rotate(62)\"><path class=\"sa-f-bob\" d=\"" + petal + "\" fill=\"" + url(c, "r") + "\"/></g>" +
@@ -258,7 +262,7 @@
       "<path d=\"M176,292 C214,280 250,300 290,290 C326,281 356,296 388,288\" fill=\"none\" stroke=\"#F1D6CC\" stroke-width=\"2.6\" stroke-linecap=\"round\"/>";
     /* main (pointes vers le bas) */
     for (i = 0; i < 4; i++) {
-      hand += finger(c, xs[i], tips[i], w, { a: 18, L: 52, ext: 4, base: 300, fill: "r" });
+      hand += finger(c, xs[i], tips[i], w, { a: 18, L: 52, ext: 4, base: 186, fill: "r" });
       coat += "<path d=\"M" + (xs[i] - r - 1) + "," + (tips[i] + 78) + " L" + (xs[i] - r - 1) + "," + (tips[i] + r) + " A" + (r + 1) + "," + (r + 1) + " 0 0 1 " + (xs[i] + r + 1) + "," + (tips[i] + r) + " L" + (xs[i] + r + 1) + "," + (tips[i] + 78) +
         " Q" + xs[i] + "," + (tips[i] + 66) + " " + (xs[i] - r - 1) + "," + (tips[i] + 78) + "Z\" fill=\"#FFF9F3\" fill-opacity=\".93\" stroke=\"#EDD2C8\" stroke-width=\"1.2\"/>" +
         "<path d=\"M" + (xs[i] - r * 0.5) + "," + (tips[i] + 62) + " V" + (tips[i] + 22) + "\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/>";
@@ -291,7 +295,7 @@
       "<g transform=\"translate(392,110) scale(-.8,.8)\"><path class=\"sa-d-vol sa-d4\" d=\"" + vol + "\" fill=\"none\" stroke=\"" + c.color + "\" stroke-width=\"4.5\" stroke-linecap=\"round\"/></g>" +
       "<g transform=\"translate(280,96) scale(.9)\"><path class=\"sa-d-vol sa-d5\" d=\"" + vol + "\" fill=\"none\" stroke=\"#E3A9B1\" stroke-width=\"4.5\" stroke-linecap=\"round\"/></g>";
     s += "<g transform=\"translate(" + x + "," + (tip - ext) + ")\"><g class=\"sa-d-cot\">" + sh + cot +
-      "<g class=\"sa-d-tint\"><circle cx=\"-20\" cy=\"20\" r=\"22\" fill=\"" + c.color + "\" opacity=\".4\"/><circle cx=\"14\" cy=\"24\" r=\"17\" fill=\"" + c.color + "\" opacity=\".32\"/></g>" +
+      "<g class=\"sa-d-tint\"><circle cx=\"-22\" cy=\"22\" r=\"29\" fill=\"" + c.color + "\"/><circle cx=\"24\" cy=\"22\" r=\"30\" fill=\"" + c.color + "\"/><circle cx=\"0\" cy=\"8\" r=\"30\" fill=\"" + c.color + "\"/></g>" +
       "<path d=\"M-52,-8 C-40,-30 -14,-40 6,-40\" fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\"/></g></g>";
     s += spark(398, 250, 13, "sa-d-sp") + spark(160, 96, 10, "sa-d-sp sa-d2", "#D18B94") + spark(246, 150, 9, "sa-d-sp sa-d3", "#fff");
     return s;
@@ -299,10 +303,10 @@
 
   /* Défaut : couronne de la marque + trois ongles. */
   SCENES.defaut = function (c) {
-    var id = c.id, s = backdrop(c), i, a = 30, L = 104, g, cat = window.QONCatalog && typeof window.QONCatalog.nailSVG === "function" ? window.QONCatalog : null;
-    var N = [[176, 236, "#EBC4B8", "french", -7], [280, 222, c.color, "", 0], [384, 236, "#A8566B", "chrome", 7]], cid, svg;
+    var id = c.id, s = backdrop(c), i, a = 32, L = 106, g, cat = window.QONCatalog && typeof window.QONCatalog.nailSVG === "function" ? window.QONCatalog : null;
+    var N = [[172, 214, "#EBC4B8", "french", -8], [280, 200, c.color, "", 0], [388, 214, "#A8566B", "fleurs", 8]], cid, svg;
     /* couronne (tracés de icons/mark.svg) */
-    s += "<g transform=\"translate(280,112)\"><g class=\"sa-x-crown\"><g transform=\"translate(-102,-90) scale(1.7)\">" +
+    s += "<g transform=\"translate(280,110)\"><g class=\"sa-x-crown\"><g transform=\"translate(-102,-90) scale(1.7)\">" +
       "<path d=\"M16 74 L24 34 L46 56 L60 22 L74 56 L96 34 L104 74 Z\" fill=\"none\" stroke=\"" + url(c, "g") + "\" stroke-width=\"3.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>" +
       "<path d=\"M18 85 H102\" stroke=\"" + url(c, "g") + "\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>" +
       "<circle cx=\"24\" cy=\"31\" r=\"4\" fill=\"" + url(c, "g") + "\"/><circle cx=\"60\" cy=\"18\" r=\"4.6\" fill=\"" + url(c, "g") + "\"/><circle cx=\"96\" cy=\"31\" r=\"4\" fill=\"" + url(c, "g") + "\"/>" +
@@ -311,11 +315,11 @@
     for (i = 0; i < 3; i++) {
       svg = "";
       if (cat) {
-        try { svg = cat.nailSVG(N[i][3] ? { shape: "amande", length: 104, design: N[i][3], w: 64 } : { shape: "amande", length: 104, color: N[i][2], w: 64 }); } catch (e) { svg = ""; }
+        try { svg = cat.nailSVG(N[i][3] ? { shape: "amande", length: 104, design: N[i][3], w: 96 } : { shape: "amande", length: 104, color: N[i][2], w: 96 }).replace("class=\"cat-nail\"", "class=\"sa-cat\""); } catch (e) { svg = ""; }
       }
       s += "<g transform=\"translate(" + N[i][0] + "," + N[i][1] + ") rotate(" + N[i][4] + ")\"><g class=\"sa-x-nail sa-x-n" + (i + 1) + "\">";
       if (svg) {
-        s += "<g transform=\"translate(-32,-12)\">" + svg + "</g>";
+        s += "<g transform=\"translate(-48,-6)\">" + svg + "</g>";
       } else {
         cid = id + "c" + (++c.k);
         c.defs += "<clipPath id=\"" + cid + "\"><path d=\"" + nailD(a, L) + "\"/></clipPath>";
@@ -329,7 +333,7 @@
       s += "</g></g>";
     }
     c.defs += lin(id + "y", 0, 0, 0, 1, [[0, "#FFFFFF", 0.22], [0.5, "#FFFFFF", 0], [1, "#3B1420", 0.2]]);
-    s += "<path d=\"M150,372 H410\" stroke=\"" + url(c, "g") + "\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".55\"/>" +
+    s += "<path d=\"M170,350 H390\" stroke=\"" + url(c, "g") + "\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".55\"/>" +
       spark(120, 120, 13, "sa-x-sp") + spark(440, 96, 10, "sa-x-sp sa-d2", "#D18B94") + spark(462, 214, 12, "sa-x-sp sa-d3") + spark(104, 232, 8, "sa-x-sp sa-d4", "#D18B94") + spark(280, 28, 7, "sa-x-sp sa-d2");
     return s;
   };

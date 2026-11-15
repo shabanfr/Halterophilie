@@ -14,7 +14,8 @@
   ];
   var ARTS = [["", "Automatique"], ["manucure", "Manucure"], ["pose", "Pose gel / capsules"], ["art", "Nail art"], ["pedicure", "Pédicure"], ["soin", "Soin des mains"], ["depose", "Dépose"], ["defaut", "Couronne Queen of Nails"]];
   var state = null;            // contenu en cours d'édition
-  var pending = {};            // chemin -> dataURL des nouvelles photos
+  var pending = {};
+  var pendingAudio = {};     // chemin -> dataURL des nouvelles musiques (en mémoire seulement)            // chemin -> dataURL des nouvelles photos
   var cfg = { owner: "", repo: "", branch: "master", dir: "queen-of-nails/", token: "" };
   var tab = "prestations";
   var dirty = false;
@@ -47,7 +48,7 @@
     if (hm) { rcCode = hm[1].toUpperCase(); lsSet("qon-rc", rcCode); tab = "tele"; }
     var draft = lsGet("qon-draft");
     if (draft) {
-      try { var d = JSON.parse(draft); state = d.state; pending = d.pending || {}; dirty = true; } catch (e) {}
+      try { var d = JSON.parse(draft); state = d.state; pending = d.pending || {}; dirty = true; if (state.music && state.music.tracks) state.music.tracks = state.music.tracks.filter(function (t) { return !t._new; }); } catch (e) {}
     }
     if (state) { badge(); render(); return; }
     fetch("data.json?t=" + Date.now(), { cache: "no-store" })
@@ -76,9 +77,9 @@
     var v = getPath(state, path);
     return '<label>' + label + '</label><input type="' + (type || "text") + '" data-k="' + path + '" value="' + esc(v) + '"' + (extra || "") + '>';
   }
-  function stepper(label, path, step, min, unit) {
-    return '<label>' + label + '</label><div class="stepper"><button class="btn" type="button" data-step="' + path + '" data-d="-' + step + '" data-min="' + min + '">−</button>' +
-      '<input type="number" inputmode="numeric" data-k="' + path + '" data-num="1" value="' + esc(getPath(state, path)) + '"><button class="btn" type="button" data-step="' + path + '" data-d="' + step + '" data-min="' + min + '">+</button></div>' +
+  function stepper(label, path, step, min, unit, max) {
+    return '<label>' + label + '</label><div class="stepper"><button class="btn" type="button" data-step="' + path + '" data-d="-' + step + '" data-min="' + min + '" data-max="' + (max || 100000) + '">−</button>' +
+      '<input type="number" inputmode="numeric" data-k="' + path + '" data-num="1" value="' + esc(getPath(state, path)) + '"><button class="btn" type="button" data-step="' + path + '" data-d="' + step + '" data-min="' + min + '" data-max="' + (max || 100000) + '">+</button></div>' +
       '<div class="hint" style="margin:4px 0 0">' + unit + '</div>';
   }
   function viewPrestations() {
@@ -147,6 +148,29 @@
       field("Téléphone", "contact.phone") + field("Instagram", "contact.instagram", "text", ' placeholder="@queenofnails"') +
       field("Adresse", "contact.address") + field("Horaires", "contact.hours", "text", ' placeholder="Mar–Sam 9h–19h"') + "</section>";
   }
+  function viewMusique() {
+    var m = state.music = state.music || { enabled: true, volume: 30, shuffle: true, tracks: [] };
+    var h = '<h2>Ta <em>musique</em></h2><p class="hint">La TV joue ces morceaux en continu. Ajoute les tiens : tu dois avoir le droit de les diffuser dans ton salon (SACEM/SPRE).</p>' +
+      '<section class="card"><label class="chk"><input type="checkbox" data-chk="music.enabled"' + (m.enabled !== false ? " checked" : "") + '>Musique d’ambiance activée</label>' +
+      '<label class="chk"><input type="checkbox" data-chk="music.shuffle"' + (m.shuffle ? " checked" : "") + '>Lecture aléatoire</label>' +
+      stepper("Volume au démarrage", "music.volume", 5, 0, "sur 100 (réf. : 30)", 100) + '</section>';
+    if (rcCode) {
+      h += '<section class="card"><h3>En direct sur la TV</h3><div class="live" id="mlive"><i></i><span>…</span></div><div class="pad">' +
+        '<button class="btn" type="button" data-rc="mprev">◀ Précédente</button><button class="btn" type="button" data-rc="mnext">Suivante ▶</button>' +
+        '<button class="btn" type="button" data-rc="mpause">⏯ Pause / Lecture</button><button class="btn" type="button" data-rc="mvol" data-n="-5">Volume −</button>' +
+        '<button class="btn" type="button" data-rc="mvol" data-n="5">Volume +</button></div></section>';
+    }
+    h += '<label class="btn primary" style="display:block;text-align:center;margin-bottom:14px">+ Ajouter de la musique<input id="afile" type="file" accept="audio/*" multiple hidden></label>';
+    var tr = m.tracks || [];
+    if (!tr.length) return h + '<div class="empty">Aucun morceau.</div>';
+    h += '<section class="card"><h3>Morceaux (' + tr.length + ')</h3>';
+    tr.forEach(function (t, i) {
+      h += '<div class="item"><label class="chk" style="margin-top:0"><input type="checkbox" data-chk="music.tracks.' + i + '.on"' + (t.on !== false ? " checked" : "") + '>Jouer ce morceau' + (pendingAudio[t.src] ? '<span class="pill">à publier</span>' : "") + '</label>' +
+        field("Titre", "music.tracks." + i + ".title") +
+        '<div class="tools"><button class="btn small danger" type="button" data-act="trk-del" data-i="' + i + '">Supprimer</button></div></div>';
+    });
+    return h + "</section>";
+  }
   // ---------- télécommande ----------
   var RC = "https://ntfy.sh/", rcCode = lsGet("qon-rc") || "", tvState = null, es = null, esCode = "";
   function slideNames() {
@@ -169,7 +193,7 @@
     try {
       es = new EventSource(RC + "qon-" + rcCode.toLowerCase() + "-s/sse");
       es.onmessage = function (ev) {
-        try { var m = JSON.parse(ev.data); if (m.event !== "message") return; tvState = JSON.parse(m.message); if (tab === "tele") paintLive(); } catch (e) {}
+        try { var m = JSON.parse(ev.data); if (m.event !== "message") return; tvState = JSON.parse(m.message); if (tab === "tele" || tab === "musique") paintLive(); } catch (e) {}
       };
     } catch (e) {}
   }
@@ -180,6 +204,11 @@
     el.querySelector("span").textContent = fresh
       ? (tvState.mode === "pano" ? "TV : panorama" + (tvState.scene ? " · " + tvState.scene : "") : "TV : diapo " + (tvState.slide + 1) + "/" + tvState.total + (tvState.paused ? " · en pause" : ""))
       : "TV : en attente de réponse…";
+    var ml = $("#mlive");
+    if (ml && tvState && tvState.music) {
+      ml.className = "live on";
+      ml.querySelector("span").textContent = (tvState.music.playing ? "▶ " : "⏸ ") + (tvState.music.title || "—") + " · volume " + tvState.music.vol;
+    }
     Array.prototype.forEach.call(document.querySelectorAll("#slides .btn"), function (b) {
       b.classList.toggle("cur", !!(fresh && tvState.mode === "menu" && Number(b.getAttribute("data-n")) === tvState.slide));
     });
@@ -216,8 +245,8 @@
   }
   function render() {
     var y = window.scrollY;
-    $("#view").innerHTML = ({ prestations: viewPrestations, pano: viewPano, photos: viewPhotos, infos: viewInfos, tele: viewTele, publier: viewPublier })[tab]();
-    if (tab === "tele") { listen(); send("hello"); paintLive(); }
+    $("#view").innerHTML = ({ prestations: viewPrestations, pano: viewPano, photos: viewPhotos, infos: viewInfos, musique: viewMusique, tele: viewTele, publier: viewPublier })[tab]();
+    if (tab === "tele" || tab === "musique") { listen(); if (rcCode) send("hello"); paintLive(); }
     Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function (b) { b.classList.toggle("on", b.getAttribute("data-tab") === tab); });
     window.scrollTo(0, y);
     badge();
@@ -247,6 +276,7 @@
       state.panoScenes = arr; saveDraft(); render(); return;
     }
     if (t.id === "file") addPhotos(t.files);
+    if (t.id === "afile") addAudio(t.files);
   });
   $("#tabs").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
@@ -256,11 +286,11 @@
   document.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     var rcmd = b.getAttribute("data-rc");
-    if (rcmd) { send(rcmd, rcmd === "goto" ? Number(b.getAttribute("data-n")) : null); return; }
+    if (rcmd) { send(rcmd, b.getAttribute("data-n") != null ? Number(b.getAttribute("data-n")) : null); return; }
     var st = b.getAttribute("data-step");
     if (st) {
       var cur = Number(getPath(state, st)) || 0, d = Number(b.getAttribute("data-d")), mn = Number(b.getAttribute("data-min"));
-      setPath(state, st, Math.max(mn, cur + d)); saveDraft(); render(); return;
+      setPath(state, st, Math.min(Number(b.getAttribute("data-max")) || 1e9, Math.max(mn, cur + d))); saveDraft(); render(); return;
     }
     var a = b.getAttribute("data-act"); if (!a) { if (b.id === "publish") publish(); return; }
     var si = Number(b.getAttribute("data-si")), ii = Number(b.getAttribute("data-ii"));
@@ -279,6 +309,7 @@
     else if (a === "ph-del") { var i2 = Number(b.getAttribute("data-i")), p = state.gallery[i2]; state.gallery.splice(i2, 1); delete pending[p]; }
     else if (a === "rc-save") { var v = ($("#rcin").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, ""); if (v.length < 6) { say("Code trop court.", "err"); return; } rcCode = v; lsSet("qon-rc", v); say("TV associée ✔", "ok"); render(); return; }
     else if (a === "rc-forget") { rcCode = ""; try { localStorage.removeItem("qon-rc"); } catch (e) {} if (es) { es.close(); es = null; esCode = ""; } render(); return; }
+    else if (a === "trk-del") { if (!confirmDel(b)) return; var ti = Number(b.getAttribute("data-i")), tp = state.music.tracks[ti]; state.music.tracks.splice(ti, 1); if (tp) delete pendingAudio[tp.src]; }
     else if (a === "export") { copy(JSON.stringify(state, null, 2)); return; }
     else if (a === "import") { importJSON(); return; }
     else if (a === "reset") { resetAll(); return; }
@@ -348,6 +379,26 @@
     })();
   }
 
+  function addAudio(files) {
+    var list = Array.prototype.slice.call(files || []), n = 0;
+    if (!list.length) return;
+    say("Préparation de la musique…");
+    (function next() {
+      var f = list.shift();
+      if (!f) { saveDraft(); render(); say(n + " morceau(x) ajouté(s). Publie avant de quitter cette page.", "ok"); return; }
+      if (f.size > 15 * 1024 * 1024) { say("« " + f.name + " » dépasse 15 Mo, ignoré.", "err"); next(); return; }
+      var rd = new FileReader();
+      rd.onload = function () {
+        var ext = /\.m4a$/i.test(f.name) || /mp4|aac/.test(f.type) ? "m4a" : "mp3";
+        var path = "music/" + Date.now().toString(36) + n + "." + ext;
+        state.music.tracks.push({ src: path, title: f.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "), on: true, _new: true });
+        pendingAudio[path] = rd.result; n++; next();
+      };
+      rd.onerror = function () { next(); };
+      rd.readAsDataURL(f);
+    })();
+  }
+
   // ---------- publication GitHub ----------
   function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
   function api(method, path, body) {
@@ -381,13 +432,16 @@
     if (busy) return;
     if (!cfg.token && !isLocal) { tab = "publier"; render(); say("Colle d’abord ton jeton GitHub (section Connexion).", "err"); return; }
     busy = true; say("Publication en cours…");
-    var paths = Object.keys(pending), chain = Promise.resolve(), l = $("#log"); if (l) l.textContent = "";
+    var paths = Object.keys(pending), apaths = Object.keys(pendingAudio), chain = Promise.resolve(), l = $("#log"); if (l) l.textContent = "";
+    apaths.forEach(function (p) {
+      chain = chain.then(function () { log("Musique " + p); return putFile(p, pendingAudio[p].split(",")[1], "Ajout musique"); });
+    });
     paths.forEach(function (p) {
       chain = chain.then(function () { log("Photo " + p); return putFile(p, pending[p].split(",")[1], "Ajout photo"); });
     });
-    chain.then(function () { log("Contenu (data.json)"); return putFile("data.json", b64(JSON.stringify(state, null, 2) + "\n"), "Mise à jour du contenu"); })
+    chain.then(function () { log("Contenu (data.json)"); return putFile("data.json", b64(JSON.stringify(state, function (k, v) { return k === "_new" ? undefined : v; }, 2) + "\n"), "Mise à jour du contenu"); })
       .then(function () {
-        pending = {}; dirty = false; try { localStorage.removeItem("qon-draft"); } catch (e) {}
+        pending = {}; pendingAudio = {}; dirty = false; try { localStorage.removeItem("qon-draft"); } catch (e) {}
         busy = false; log("Terminé. La TV se met à jour dans quelques minutes."); say("Publié ✔ La TV se met à jour dans quelques minutes.", "ok"); render();
       })
       .catch(function (err) { busy = false; log("Erreur : " + err.message); say("Échec de la publication : " + err.message, "err"); });

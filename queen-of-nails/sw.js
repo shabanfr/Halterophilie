@@ -13,7 +13,7 @@ self.addEventListener("activate", function (e) {
   self.clients.claim();
 });
 self.addEventListener("fetch", function (e) {
-  if (e.request.method !== "GET") return;
+  if (e.request.method !== "GET" || /\/music\//.test(e.request.url) || /\/photos\//.test(e.request.url)) return;
   e.respondWith(
     fetch(e.request).then(function (r) {
       var copy = r.clone();

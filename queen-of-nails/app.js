@@ -247,6 +247,38 @@ function boot(D, rawJSON) {
   function bump(ms) { clearTimeout(idleT); idleT = setTimeout(enterPano, ms || idleMs); }
   function loopMs() { var t = 0; for (var q = 0; q < els.length; q++) t += durOf(q); return t + 500; }
 
+
+  // ---------- Musique d'ambiance (jouée par la page) ----------
+  var M = D.music || { enabled: false, tracks: [] };
+  var audio = new Audio();
+  audio.preload = "auto";
+  var mTracks = [], mIdx = -1, mBlocked = false, mFails = 0, mVol = (M.volume == null ? 30 : M.volume);
+  (function () {
+    mTracks = (M.tracks || []).filter(function (t) { return t.on !== false && t.src; });
+    if (M.shuffle) for (var i = mTracks.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = mTracks[i]; mTracks[i] = mTracks[j]; mTracks[j] = t; }
+  })();
+  function mPlay(i) {
+    if (!mTracks.length || M.enabled === false) return;
+    mIdx = (i + mTracks.length) % mTracks.length;
+    audio.src = mTracks[mIdx].src;
+    audio.volume = Math.max(0, Math.min(1, mVol / 100));
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () { mBlocked = true; });
+    if (typeof pubSoon === "function") pubSoon();
+  }
+  audio.addEventListener("ended", function () { mFails = 0; mPlay(mIdx + 1); });
+  audio.addEventListener("playing", function () { mBlocked = false; mFails = 0; });
+  audio.addEventListener("error", function () { if (++mFails < mTracks.length) setTimeout(function () { mPlay(mIdx + 1); }, 800); });
+  function mState() { return { title: mIdx >= 0 && mTracks[mIdx] ? mTracks[mIdx].title : "", playing: !audio.paused, vol: Math.round(mVol), on: M.enabled !== false && mTracks.length > 0 }; }
+  function mCmd(c) {
+    if (c.cmd === "mnext") mPlay(mIdx + 1);
+    else if (c.cmd === "mprev") mPlay(mIdx - 1);
+    else if (c.cmd === "mpause") { if (audio.paused) { if (mIdx < 0) mPlay(0); else audio.play().catch(function () {}); } else audio.pause(); }
+    else if (c.cmd === "mvol") { mVol = Math.max(0, Math.min(100, mVol + (Number(c.n) || 0))); audio.volume = mVol / 100; }
+    setTimeout(function () { if (typeof pubSoon === "function") pubSoon(); }, 300);
+  }
+  if (M.enabled !== false) mPlay(M.shuffle ? 0 : 0);
+
   // ---------- Télécommande à distance (depuis l'appli du téléphone) ----------
   // Messages simples (« next », « pause »…) échangés via un salon ntfy.sh à code secret ; aucune donnée personnelle.
   var RC_BASE = "https://ntfy.sh/";
@@ -259,7 +291,7 @@ function boot(D, rawJSON) {
   var rcTopic = "qon-" + rcCode.toLowerCase();
   function pubState() {
     try {
-      var st = { slide: cur, total: els.length, mode: mode, paused: paused, scene: sceneList[sceneIdx], t: Date.now() };
+      var st = { slide: cur, total: els.length, mode: mode, paused: paused, scene: sceneList[sceneIdx], music: mState(), t: Date.now() };
       fetch(RC_BASE + rcTopic + "-s", { method: "POST", body: JSON.stringify(st) });
     } catch (e) {}
   }
@@ -267,6 +299,7 @@ function boot(D, rawJSON) {
   function pubSoon() { clearTimeout(pubT); pubT = setTimeout(pubState, 400); }
   function rcAct(c) {
     if (c.cmd === "hello") { hidePair(); pubState(); return; }
+    if (/^m(next|prev|pause|vol)$/.test(c.cmd)) { mCmd(c); return; }
     bump();
     if (c.cmd === "next" || c.cmd === "prev") {
       if (mode === "pano") exitPano();
@@ -309,6 +342,7 @@ function boot(D, rawJSON) {
   var _show = show;
   window.addEventListener("keydown", function (e) {
     var k = e.keyCode;
+    if (mBlocked) { audio.play().catch(function () {}); }
     if (mode === "pano") { e.preventDefault(); exitPano(); bump(); return; }
     bump();
     flashKeys();

@@ -12,6 +12,30 @@ window.QON = {
   // Photos de réalisations (chemins relatifs, ex. "photos/01.jpg"). Vide = décors générés.
   gallery: [],
   quotes: ["Des ongles qui vous ressemblent.", "Prenez un moment pour vous.", "Le détail qui change tout.", "Chaque ongle, une petite œuvre."],
+  // Musique d'ambiance (jouée par la page TV). volume : 0 à 100.
+  music: {
+    enabled: true, volume: 30, shuffle: true,
+    tracks: [
+      { src: "music/a-cup-of-tea.mp3", title: "A cup of tea", on: true },
+      { src: "music/contemplation.mp3", title: "Contemplation", on: true },
+      { src: "music/dust.mp3", title: "Dust", on: true },
+      { src: "music/elevator.mp3", title: "Elevator", on: true },
+      { src: "music/elevator-2.mp3", title: "Elevator 2", on: true },
+      { src: "music/i-do-know.mp3", title: "I Do Know", on: true },
+      { src: "music/just-you-and-me.mp3", title: "Just you and me", on: true },
+      { src: "music/fouler-l-horizon.mp3", title: "Fouler l'horizon", on: true },
+      { src: "music/champ-de-tournesol.mp3", title: "Champ de tournesol", on: true },
+      { src: "music/bleu.mp3", title: "Bleu", on: true },
+      { src: "music/serenade.mp3", title: "Serenade", on: true },
+      { src: "music/the-love-cycle.mp3", title: "The love cycle", on: true },
+      { src: "music/gone-fishin.mp3", title: "Gone fishin'", on: true },
+      { src: "music/jazz-doux.mp3", title: "Jazz doux", on: true },
+      { src: "music/lydian.mp3", title: "Lydian", on: true },
+      { src: "music/pretty.mp3", title: "Pretty", on: true },
+      { src: "music/bossa.mp3", title: "Bossa", on: true },
+      { src: "music/sunny-side-up.mp3", title: "Sunny side up", on: true }
+    ]
+  },
   // Renseigner pour les afficher sur la dernière diapo (laisser "" pour masquer)
   contact: { phone: "", instagram: "", address: "", hours: "" },
   sections: [

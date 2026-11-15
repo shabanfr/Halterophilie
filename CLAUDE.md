@@ -30,3 +30,8 @@ adb -s 100.111.8.115:5555 shell
 - Gardé : cast (`mediashell`), Netflix, YouTube, Tailscale, VLC.
 - Tailscale : VPN permanent + whitelist deviceidle ; ADB réseau persistant après reboot.
 - Animations à 0.5x. Ne pas toucher : com.tcl.tv, tvinput, tvpassthrough, settings, partnercustomizer, sourcemananger, initsetup.
+
+### Site Queen of Nails (dossier `queen-of-nails/`)
+- Affichage TV : Fully Kiosk plein écran. Musique jouée par la page (`music/*.mp3`, config `data.js` → `music`), plus par VLC.
+- Gestion : `admin.html` (prestations, panorama, photos, musique, infos, télécommande via ntfy.sh). Test local : `python3 /tmp/ts/devserver.py` (écrit data.json/photos/musique).
+- Déploiement : GitHub Pages via `.github/workflows/pages.yml` (après fusion sur `master`).
