@@ -1,6 +1,6 @@
 /* Cache réseau-d'abord : contenu à jour si en ligne, dernier contenu connu si hors-ligne. */
-var CACHE = "qon-v2";
-var ASSETS = ["./", "index.html", "style.css", "app.js", "data.js", "qr.js", "manifest.webmanifest", "icons/icon.svg"];
+var CACHE = "qon-v3";
+var ASSETS = ["./", "index.html", "style.css", "app.js", "data.js", "qr.js", "catalog.js", "catalog.css", "admin.html", "admin.js", "admin.css", "admin.webmanifest", "manifest.webmanifest", "icons/icon.svg"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }));

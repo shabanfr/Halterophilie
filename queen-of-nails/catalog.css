@@ -9,10 +9,10 @@
 .cat-scene *{box-sizing:border-box;margin:0;padding:0}
 
 /* ---------- En-tête de scène ---------- */
-.cat-head{flex:none}
+.cat-head{flex:none;padding-bottom:.6rem}
 .cat-kicker{font:500 1.4rem/1 var(--body,"Outfit",sans-serif);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep,#A8566B)}
 .cat-headrow{display:flex;align-items:flex-end;justify-content:space-between;margin-top:1.1rem}
-.cat-title{font:400 4.8rem/1 var(--display,"Fraunces",Georgia,serif);letter-spacing:-.01em;color:var(--ink,#3B2229);white-space:nowrap}
+.cat-title{font:400 4.4rem/1 var(--display,"Fraunces",Georgia,serif);letter-spacing:-.01em;color:var(--ink,#3B2229);white-space:nowrap}
 .cat-title em{font-style:italic;color:var(--rose-deep,#A8566B)}
 .cat-sub{font:400 1.7rem/1.25 var(--body,"Outfit",sans-serif);color:var(--ink-soft,#7A5560);text-align:right;padding:0 0 .55rem 3rem}
 
@@ -25,8 +25,9 @@
 .cat-desc{font:400 1.5rem/1.25 var(--body,"Outfit",sans-serif);color:var(--ink-soft,#7A5560);margin-top:.4rem}
 
 /* 1. Formes : 8 sur une rangée */
+.cat-formes .cat-grid{align-items:flex-start;align-content:center}
 .cat-formes .cat-item{width:11rem}
-.cat-formes .cat-nail{width:8.8rem}
+.cat-formes .cat-nail{width:9.8rem}
 .cat-formes .cat-name{font:500 2.2rem/1.1 var(--display,"Fraunces",Georgia,serif)}
 
 /* 2. Longueurs : 4 doigts alignés sur la base */
@@ -37,11 +38,11 @@
 .cat-longueurs .cat-desc{font-size:1.6rem}
 
 /* 3 et 4. Couleurs / designs : 6 × 2 sur cartes */
-.cat-card{width:13.6rem;padding:1.3rem .6rem 1.2rem;border-radius:2rem;
+.cat-card{width:13.9rem;padding:1rem .4rem .95rem;border-radius:2rem;
   background:var(--card,rgba(255,255,255,.62));border:1px solid rgba(255,255,255,.9);
   box-shadow:0 .5rem 1.2rem rgba(168,86,107,.09)}
-.cat-card .cat-nail{width:6.3rem}
-.cat-card .cat-name{font:500 1.65rem/1.15 var(--body,"Outfit",sans-serif);margin-top:.9rem;white-space:nowrap}
+.cat-card .cat-nail{width:7.6rem}
+.cat-card .cat-name{font:500 1.7rem/1.15 var(--body,"Outfit",sans-serif);margin-top:.7rem;white-space:nowrap}
 
 /* ---------- Entrée échelonnée ---------- */
 .cat-head,.cat-item{opacity:0;transform:translate3d(0,1.6rem,0);transition:opacity .3s ease,transform .3s ease}

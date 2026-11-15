@@ -97,7 +97,7 @@
     for (i = 0; i < count; i++) {
       x = XL + 2 + r() * (XR - XL - 4);
       y = fn(r(), B);
-      s = 0.7 + r() * r() * 2.1;
+      s = 1 + r() * r() * 2.6;
       col = palette[Math.floor(r() * palette.length)];
       if (i % 4 === 0) {
         out += "<path d=\"M" + n(x) + "," + n(y - s * 1.5) + " L" + n(x + s) + "," + n(y) + " L" + n(x) + "," + n(y + s * 1.5) +
@@ -181,12 +181,12 @@
         body: "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + (B + 4) + "\" fill=\"url(#" + id + "b)\"/>" +
           "<g fill=\"none\" stroke-linecap=\"round\">" +
           "<path d=\"M10," + y(0.34) + " C30," + y(0.3) + " 34," + y(0.48) + " 52," + y(0.5) + " S78," + y(0.62) + " 92," + y(0.58) + "\" stroke=\"#C9C4C8\" stroke-width=\"6\" opacity=\".35\"/>" +
-          "<path d=\"M10," + y(0.34) + " C30," + y(0.3) + " 34," + y(0.48) + " 52," + y(0.5) + " S78," + y(0.62) + " 92," + y(0.58) + "\" stroke=\"#77737B\" stroke-width=\"1.3\" opacity=\".8\"/>" +
-          "<path d=\"M38," + y(0.44) + " C44," + y(0.6) + " 36," + y(0.7) + " 42," + y(0.84) + " S40," + y(0.96) + " 46," + y(1.02) + "\" stroke=\"#8C8890\" stroke-width=\".9\" opacity=\".7\"/>" +
-          "<path d=\"M60," + y(0.04) + " C54," + y(0.14) + " 66," + y(0.22) + " 60," + y(0.32) + " S70," + y(0.44) + " 64," + y(0.53) + "\" stroke=\"#8C8890\" stroke-width=\"1\" opacity=\".65\"/>" +
-          "<path d=\"M62," + y(0.24) + " C72," + y(0.24) + " 78," + y(0.3) + " 90," + y(0.27) + "\" stroke=\"#A29EA6\" stroke-width=\".7\" opacity=\".7\"/>" +
-          "<path d=\"M12," + y(0.72) + " C24," + y(0.7) + " 30," + y(0.78) + " 41," + y(0.76) + "\" stroke=\"#A29EA6\" stroke-width=\".7\" opacity=\".7\"/>" +
-          "<path d=\"M14," + y(0.4) + " C32," + y(0.37) + " 36," + y(0.54) + " 54," + y(0.555) + " S76," + y(0.66) + " 90," + y(0.635) + "\" stroke=\"#C9A268\" stroke-width=\"1\" opacity=\".95\"/>" +
+          "<path d=\"M10," + y(0.34) + " C30," + y(0.3) + " 34," + y(0.48) + " 52," + y(0.5) + " S78," + y(0.62) + " 92," + y(0.58) + "\" stroke=\"#77737B\" stroke-width=\"1.9\" opacity=\".8\"/>" +
+          "<path d=\"M38," + y(0.44) + " C44," + y(0.6) + " 36," + y(0.7) + " 42," + y(0.84) + " S40," + y(0.96) + " 46," + y(1.02) + "\" stroke=\"#8C8890\" stroke-width=\"1.4\" opacity=\".7\"/>" +
+          "<path d=\"M60," + y(0.04) + " C54," + y(0.14) + " 66," + y(0.22) + " 60," + y(0.32) + " S70," + y(0.44) + " 64," + y(0.53) + "\" stroke=\"#8C8890\" stroke-width=\"1.5\" opacity=\".65\"/>" +
+          "<path d=\"M62," + y(0.24) + " C72," + y(0.24) + " 78," + y(0.3) + " 90," + y(0.27) + "\" stroke=\"#A29EA6\" stroke-width=\"1.1\" opacity=\".7\"/>" +
+          "<path d=\"M12," + y(0.72) + " C24," + y(0.7) + " 30," + y(0.78) + " 41," + y(0.76) + "\" stroke=\"#A29EA6\" stroke-width=\"1.1\" opacity=\".7\"/>" +
+          "<path d=\"M14," + y(0.4) + " C32," + y(0.37) + " 36," + y(0.54) + " 54," + y(0.555) + " S76," + y(0.66) + " 90," + y(0.635) + "\" stroke=\"#C9A268\" stroke-width=\"1.6\" opacity=\".95\"/>" +
           "</g>"
       };
     },
@@ -196,10 +196,10 @@
       return {
         defs: vgrad(id + "b", [[0, "#FBE6E2"], [1, "#F2C7C6"]], T, B),
         body: "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + (B + 4) + "\" fill=\"url(#" + id + "b)\"/>" +
-          leaf(33, y(0.69), 7, -50) + leaf(71, y(0.6), 6.5, 40) + leaf(42, y(0.38), 5.5, -35) +
-          flower(55, y(0.72), 13.5, "#FFFFFF", "#DDAA45", 0) +
-          flower(40, y(0.5), 10, "#FFFFFF", "#DDAA45", 24) +
-          flower(60, y(0.34), 7.5, "#FFF4F6", "#DDAA45", 50) +
+          leaf(33, y(0.68), 9, -50) + leaf(74, y(0.58), 8, 40) + leaf(62, y(0.42), 7, 35) +
+          flower(56, y(0.73), 16, "#FFFFFF", "#DDAA45", 0) +
+          flower(39, y(0.47), 12, "#FFFFFF", "#DDAA45", 24) +
+          flower(58, y(0.27), 8.5, "#FFF4F6", "#DDAA45", 50) +
           "<circle cx=\"30\" cy=\"" + n(y(0.84)) + "\" r=\"1.6\" fill=\"#fff\"/><circle cx=\"70\" cy=\"" + n(y(0.47)) + "\" r=\"1.6\" fill=\"#fff\"/>" +
           "<circle cx=\"47\" cy=\"" + n(y(0.24)) + "\" r=\"1.3\" fill=\"#fff\"/>"
       };
@@ -211,12 +211,12 @@
         defs: vgrad(id + "b", [[0, "#F4DCD0"], [1, "#E6C2B3"]], T, B),
         body: "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + (B + 4) + "\" fill=\"url(#" + id + "b)\"/>" +
           "<g fill=\"none\" stroke-linecap=\"round\">" +
-          "<path d=\"M12," + y(0.92) + " C30," + y(0.74) + " 66," + y(0.62) + " 60," + y(0.36) + " S50," + y(0.12) + " 52," + y(0.0) + "\" stroke=\"#3B2229\" stroke-width=\"1.5\"/>" +
-          "<path d=\"M12," + y(0.99) + " C36," + y(0.82) + " 74," + y(0.68) + " 68," + y(0.4) + " S56," + y(0.16) + " 58," + y(0.0) + "\" stroke=\"#B98A4E\" stroke-width=\"1.5\"/>" +
-          "<path d=\"M24," + y(0.5) + " L46," + y(0.5) + "\" stroke=\"#3B2229\" stroke-width=\"1.2\"/>" +
+          "<path d=\"M12," + y(0.92) + " C30," + y(0.74) + " 66," + y(0.62) + " 60," + y(0.36) + " S50," + y(0.12) + " 52," + y(0.0) + "\" stroke=\"#3B2229\" stroke-width=\"2.2\"/>" +
+          "<path d=\"M12," + y(0.99) + " C36," + y(0.82) + " 74," + y(0.68) + " 68," + y(0.4) + " S56," + y(0.16) + " 58," + y(0.0) + "\" stroke=\"#B98A4E\" stroke-width=\"2.2\"/>" +
+          "<path d=\"M24," + y(0.5) + " L46," + y(0.5) + "\" stroke=\"#3B2229\" stroke-width=\"1.8\"/>" +
           "</g>" +
-          "<circle cx=\"34\" cy=\"" + y(0.42) + "\" r=\"2.3\" fill=\"#3B2229\"/>" +
-          "<circle cx=\"72\" cy=\"" + y(0.8) + "\" r=\"1.7\" fill=\"#B98A4E\"/>"
+          "<circle cx=\"34\" cy=\"" + y(0.42) + "\" r=\"3\" fill=\"#3B2229\"/>" +
+          "<circle cx=\"72\" cy=\"" + y(0.8) + "\" r=\"2.6\" fill=\"#B98A4E\"/>"
       };
     },
     strass: function (id, L) {
@@ -224,8 +224,8 @@
       return {
         defs: vgrad(id + "b", [[0, "#F8DAD6"], [1, "#EDBEC0"]], T, B),
         body: "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + (B + 4) + "\" fill=\"url(#" + id + "b)\"/>" +
-          gem(27.5, B - 33, 2.6) + gem(72.5, B - 33, 2.6) + gem(36, B - 24, 4) + gem(64, B - 24, 4) +
-          gem(50, B - 20, 6.4) + gem(50, B - 36.5, 4.2) + gem(50, B - 48.5, 3) + gem(50, B - 57.5, 2.1) + gem(50, B - 64.5, 1.5)
+          gem(25.5, B - 36, 3.4) + gem(74.5, B - 36, 3.4) + gem(35, B - 25.5, 5) + gem(65, B - 25.5, 5) +
+          gem(50, B - 21, 8) + gem(50, B - 41, 5.6) + gem(50, B - 56, 4.2) + gem(50, B - 68, 3) + gem(50, B - 77, 2)
       };
     },
     paillettes: function (id, L) {
@@ -233,7 +233,7 @@
       return {
         defs: vgrad(id + "b", [[0, "#EDB3A6"], [1, "#D4848C"]], T, B),
         body: "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + (B + 4) + "\" fill=\"url(#" + id + "b)\"/>" +
-          sparkles(11, 120, L, function (v, b) { return T + 2 + v * (b - T - 4); }, ["#FFF6E0", "#F9DDA6", "#FFFFFF", "#E9BC7E", "#FFD3DA", "#C9935A"])
+          sparkles(11, 95, L, function (v, b) { return T + 2 + v * (b - T - 4); }, ["#FFF6E0", "#F9DDA6", "#FFFFFF", "#E9BC7E", "#FFD3DA", "#C9935A"])
       };
     },
     dots: function (id, L) {
@@ -263,7 +263,7 @@
           vgrad(id + "c", [[0, "#D9A75C", 0.9], [0.45, "#E2B56F", 0.35], [1, "#E2B56F", 0]], T, T + L * 0.5),
         body: "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + (B + 4) + "\" fill=\"url(#" + id + "b)\"/>" +
           "<rect x=\"0\" y=\"0\" width=\"100\" height=\"" + n(T + L * 0.5) + "\" fill=\"url(#" + id + "c)\"/>" +
-          sparkles(5, 110, L, function (v, b) { return T + 1 + Math.pow(v, 2.3) * (b - T) * 0.64; }, ["#FFF3D0", "#F5D28C", "#FFFFFF", "#C98F3F", "#E8B866"])
+          sparkles(5, 95, L, function (v, b) { return T + 1 + Math.pow(v, 2.3) * (b - T) * 0.64; }, ["#FFF3D0", "#F5D28C", "#FFFFFF", "#C98F3F", "#E8B866"])
       };
     }
   };
@@ -361,7 +361,7 @@
     ["ronde", "Ronde", "Naturelle et douce"],
     ["ovale", "Ovale", "Affine le doigt"],
     ["amande", "Amande", "Élégante, féminine"],
-    ["coffin", "Coffin", "Dite « ballerine »"],
+    ["coffin", "Coffin", "Dite «\u00a0ballerine\u00a0»"],
     ["stiletto", "Stiletto", "Pointue, audacieuse"],
     ["lipstick", "Lipstick", "Biseau asymétrique"]
   ];
@@ -374,11 +374,11 @@
   var COLORS = [
     ["Nude rosé", "#E9C0B3"], ["Rose poudré", "#F0B5C0"], ["Rose bonbon", "#F2779F"], ["Rouge cerise", "#C1122E"],
     ["Bordeaux", "#6B1322"], ["Corail", "#FF7558"], ["Mauve lilas", "#B698D6"], ["Bleu glacier", "#B9DAEE"],
-    ["Vert sauge", "#A2B598"], ["Noir", "#1D1518"], ["Blanc lait", "#FBF6F0"], ["Champagne doré", "#D8B77F", true]
+    ["Vert sauge", "#A2B598"], ["Noir", "#1D1518"], ["Blanc lait", "#FBF6F0"], ["Champagne", "#D8B77F", true]
   ];
   var STYLES = [
     ["french", "French"], ["babyboomer", "Baby boomer"], ["chrome", "Chrome miroir"], ["cateye", "Œil-de-chat"],
-    ["marbre", "Marbre"], ["fleurs", "Fleurs"], ["lignes", "Lignes minimalistes"], ["strass", "Strass"],
+    ["marbre", "Marbre"], ["fleurs", "Fleurs"], ["lignes", "Lignes fines"], ["strass", "Strass"],
     ["paillettes", "Paillettes"], ["dots", "Pois"], ["ombre", "Ombré couleur"], ["glittertips", "Glitter tips"]
   ];
 
@@ -417,7 +417,7 @@
 
     s = "";
     for (i = 0; i < COLORS.length; i++) {
-      s += item(nailSVG({ shape: "ovale", length: 150, color: COLORS[i][1], metal: !!COLORS[i][2] }), COLORS[i][0], "", "cat-card");
+      s += item(nailSVG({ shape: "ovale", length: 124, color: COLORS[i][1], metal: !!COLORS[i][2] }), COLORS[i][0], "", "cat-card");
     }
     out.push({
       id: "couleurs", title: "Les couleurs", subtitle: "Douze teintes tendance, finition brillante",
@@ -426,7 +426,7 @@
 
     s = "";
     for (i = 0; i < STYLES.length; i++) {
-      s += item(nailSVG({ shape: "amande", length: 150, design: STYLES[i][0] }), STYLES[i][1], "", "cat-card");
+      s += item(nailSVG({ shape: "amande", length: 126, design: STYLES[i][0] }), STYLES[i][1], "", "cat-card");
     }
     out.push({
       id: "designs", title: "Les designs", subtitle: "Du plus discret au plus précieux, réalisés à la main",
