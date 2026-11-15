@@ -8,5 +8,6 @@ curl -sSf "$SRC/site.tgz" | tar xz -C "$HOME/qon"
 curl -sSf "$SRC/server.py" -o "$HOME/qon-server/server.py"
 curl -sSf "$SRC/boot.sh" -o "$HOME/.termux/boot/qon.sh"
 chmod +x "$HOME/.termux/boot/qon.sh"
-pgrep -f "python.*server.py" >/dev/null || (cd "$HOME/qon-server" && nohup python server.py >server.log 2>&1 &)
+pkill -f "python.*server.py" 2>/dev/null; sleep 1
+(cd "$HOME/qon-server" && nohup python server.py >server.log 2>&1 &)
 echo QON-INSTALL-OK

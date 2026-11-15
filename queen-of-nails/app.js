@@ -1,5 +1,7 @@
 /* Queen of Nails — affichage TV + appli téléphone (PWA). Sans dépendance (hors qr.js). */
 function boot(D, rawJSON) {
+  // Adresse du site pour les QR codes : réglage « siteUrl », sinon l'adresse réseau annoncée par le serveur de la TV, sinon l'adresse courante.
+  var BASE = D.siteUrl || window.QON_BASE || (location.origin + location.pathname.replace(/[^\/]*$/, ""));
   var qs = location.search;
   var isTV = window.innerWidth >= 1100 || /[?&]tv=1/.test(qs) || /Android TV|AFT|BRAVIA|SmartTV|Fully/i.test(navigator.userAgent);
   if (/[?&]phone=1/.test(qs)) isTV = false;
@@ -87,7 +89,7 @@ function boot(D, rawJSON) {
 
   // QR code vers l'adresse de l'appli
   try {
-    var url = QQ.url || (location.origin + location.pathname.replace(/index\.html$/, ""));
+    var url = QQ.url || BASE;
     var qr = qrcode(0, "M");
     qr.addData(url);
     qr.make();
@@ -319,7 +321,7 @@ function boot(D, rawJSON) {
   pairEl.id = "pair";
   try {
     var pq = qrcode(0, "M");
-    pq.addData(location.origin + location.pathname.replace(/[^\/]*$/, "") + "admin.html#rc=" + rcCode);
+    pq.addData(BASE + "admin.html#rc=" + rcCode);
     pq.make();
     pairEl.innerHTML = '<div class="pq">' + pq.createSvgTag({ cellSize: 4, margin: 8, scalable: true }) + '</div><div><b>Télécommande</b><span>Scanne pour piloter la TV</span><em>' + rcCode + "</em></div>";
   } catch (e) {}
@@ -368,7 +370,14 @@ function boot(D, rawJSON) {
 (function () {
   var base = window.QON, raw = "";
   function merge(j) { var o = {}, k; for (k in base) o[k] = base[k]; for (k in j) o[k] = j[k]; return o; }
-  function go(j) { boot(j ? merge(j) : base, raw); }
+  function go(j) {
+    var done = function () { boot(j ? merge(j) : base, raw); };
+    if (!/^(localhost|127\.)/.test(location.hostname)) return done();
+    try {
+      fetch("__info", { cache: "no-store" }).then(function (r) { return r.json(); })
+        .then(function (i) { if (i && i.url) window.QON_BASE = i.url; }).catch(function () {}).then(done);
+    } catch (e) { done(); }
+  }
   try {
     fetch("data.json?t=" + Date.now(), { cache: "no-store" })
       .then(function (r) { return r.ok ? r.text() : ""; })

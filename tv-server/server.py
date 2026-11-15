@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Serveur local Queen of Nails (TV) : site + enregistrement du contenu + relais de télécommande (sans internet)."""
-import http.server, json, base64, os, queue, threading, sys
+import http.server, json, base64, os, queue, threading, sys, re, socket, subprocess
 ROOT = os.path.expanduser('~/qon')
 PORT = int(os.environ.get('QON_PORT', '8080'))
 subs = {'rc': [], 'st': []}
@@ -13,6 +13,18 @@ def broadcast(kind, body):
         for q in list(subs[kind]):
             q.put(msg)
 
+def lan_ip():
+    # Adresse de la TV sur le réseau du salon (pour les QR codes)
+    cands = []
+    try:
+        out = subprocess.check_output(['ip', '-4', '-o', 'addr'], stderr=subprocess.DEVNULL).decode()
+        cands = re.findall(r'inet (\d+\.\d+\.\d+\.\d+)', out)
+    except Exception:
+        pass
+    for ip in cands:
+        if re.match(r'^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)', ip): return ip
+    return ''
+
 class H(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k): super().__init__(*a, directory=ROOT, **k)
     def log_message(self, *a): pass
@@ -23,6 +35,8 @@ class H(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split('?')[0]
         if path == '/__ping': return self._ok()
+        if path == '/__info':
+            ip = lan_ip(); return self._ok(json.dumps({'ip': ip, 'url': ('http://%s:%d/' % (ip, PORT)) if ip else ''}).encode(), 'application/json')
         if path == '/__state': return self._ok(last_state, 'application/json')
         if path in ('/__rc/events', '/__state/events'):
             kind = 'rc' if path.startswith('/__rc') else 'st'
