@@ -55,9 +55,9 @@ html.phone body{overflow:auto;cursor:auto;-webkit-user-select:auto;user-select:a
 
 /* ---------- Prestations ---------- */
 .menu{display:flex}
-.menu .left{width:30%;display:flex;flex-direction:column;justify-content:center;padding-right:3rem}
+.menu .left{padding-top:3.4rem;width:30%;display:flex;flex-direction:column;justify-content:center;padding-right:3rem}
 .menu .kicker{font:500 1.4rem/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep)}
-.menu h2{margin-top:1.4rem;font:400 5.6rem/1 var(--display);letter-spacing:-.01em}
+.menu h2{margin-top:1.2rem;font:400 4.6rem/1.02 var(--display);letter-spacing:-.01em}
 .menu h2 em{font-style:italic;color:var(--rose-deep)}
 .menu .intro{margin-top:1.8rem;font:400 1.8rem/1.4 var(--body);color:var(--ink-soft);max-width:26rem}
 .menu .nails{margin-top:3rem}
@@ -201,3 +201,7 @@ html.phone #pair{display:none}
   .prow{animation:none}
   .blob,#sparks i,.hero .nails svg,.hero .mark:after{animation:none}
 }
+
+.menu .art-wrap{margin-top:1.8rem;width:28rem;overflow:hidden}
+.menu .art-wrap .sa-svg{overflow:hidden}
+html.phone .menu .art-wrap{display:none}

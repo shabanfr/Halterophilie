@@ -333,7 +333,7 @@
       s += "</g></g>";
     }
     c.defs += lin(id + "y", 0, 0, 0, 1, [[0, "#FFFFFF", 0.22], [0.5, "#FFFFFF", 0], [1, "#3B1420", 0.2]]);
-    s += "<path d=\"M170,350 H390\" stroke=\"" + url(c, "g") + "\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".55\"/>" +
+    s += "<path d=\"M170,350 H390\" stroke=\"#C9A06F\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".55\"/>" +
       spark(120, 120, 13, "sa-x-sp") + spark(440, 96, 10, "sa-x-sp sa-d2", "#D18B94") + spark(462, 214, 12, "sa-x-sp sa-d3") + spark(104, 232, 8, "sa-x-sp sa-d4", "#D18B94") + spark(280, 28, 7, "sa-x-sp sa-d2");
     return s;
   };

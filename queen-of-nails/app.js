@@ -61,7 +61,7 @@ function boot(D, rawJSON) {
     }).join("");
     slides.push('<section class="slide menu" data-id="' + s.id + '">' + top() +
       '<div class="left"><div class="kicker">' + s.kicker + '</div><h2>' + titleHTML(s.title) + '</h2>' +
-      '<p class="intro">' + s.intro + '</p><div class="nails-wrap">' + nails(0.9) + '</div></div>' +
+      '<p class="intro">' + s.intro + '</p><div class="art-wrap">' + (window.QONArt ? window.QONArt.scene(s.art || window.QONArt.match(s.id + " " + s.title)) : nails(0.9)) + '</div></div>' +
       '<div class="right"><div class="list">' + rows + '</div></div></section>');
   });
 
