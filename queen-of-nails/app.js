@@ -146,10 +146,15 @@ function boot(D, rawJSON) {
   }
   var keysT;
   function flashKeys() { document.body.classList.add("keys"); clearTimeout(keysT); keysT = setTimeout(function () { document.body.classList.remove("keys"); }, 5000); }
+  var pauseT = null;
   function togglePause() {
     paused = !paused;
     document.body.classList.toggle("paused", paused);
-    if (paused) { clearTimeout(timer); bar.className = "run paused"; } else { schedule(); }
+    clearTimeout(pauseT);
+    if (paused) {
+      clearTimeout(timer); bar.className = "run paused";
+      pauseT = setTimeout(function () { if (paused) togglePause(); }, 60000);   // la pause ne reste jamais bloquée
+    } else { schedule(); }
   }
 
   // ---------- Mode panorama (cliente en cours de soin) ----------
@@ -312,7 +317,8 @@ function boot(D, rawJSON) {
       show(parseInt(c.n, 10) || 0);
     } else if (c.cmd === "pause") {
       if (mode === "menu") togglePause();
-    } else if (c.cmd === "pano") { enterPano(); }
+    } else if (c.cmd === "pair") { showPair(); }
+    else if (c.cmd === "pano") { enterPano(); }
     else if (c.cmd === "menu") { if (mode === "pano") exitPano(); }
     else if (c.cmd === "scene") { if (mode === "pano") setScene(sceneIdx + 1); }
     pubSoon();
@@ -326,7 +332,9 @@ function boot(D, rawJSON) {
     pairEl.innerHTML = '<div class="pq">' + pq.createSvgTag({ cellSize: 4, margin: 8, scalable: true }) + '</div><div><b>Télécommande</b><span>Scanne pour piloter la TV</span><em>' + rcCode + "</em></div>";
   } catch (e) {}
   document.body.appendChild(pairEl);
-  function hidePair() { pairEl.classList.remove("on"); }
+  var pairT = null;
+  function hidePair() { clearTimeout(pairT); pairEl.classList.remove("on"); }
+  function showPair() { pairEl.classList.add("on"); clearTimeout(pairT); pairT = setTimeout(hidePair, 120000); }
   setTimeout(function () { pairEl.classList.add("on"); }, 1500);
   setTimeout(hidePair, 120000);
   function rcListen() {
@@ -348,6 +356,7 @@ function boot(D, rawJSON) {
   window.addEventListener("keydown", function (e) {
     var k = e.keyCode;
     if (mBlocked) { audio.play().catch(function () {}); }
+    if (k === 82 && mode !== "pano") { e.preventDefault(); showPair(); return; }   // touche Menu : affiche le QR de jumelage
     if (mode === "pano") { e.preventDefault(); exitPano(); bump(); return; }
     bump();
     flashKeys();

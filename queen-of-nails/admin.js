@@ -228,7 +228,7 @@
     h += '<div class="live" id="live"><i></i><span>TV : en attente de réponse…</span></div>' +
       '<section class="card"><div class="pad"><button class="btn" type="button" data-rc="prev">◀ Précédent</button><button class="btn" type="button" data-rc="next">Suivant ▶</button>' +
       '<button class="btn" type="button" data-rc="pause">⏯ Pause / Reprise</button><button class="btn" type="button" data-rc="scene">Scène suivante</button>' +
-      '<button class="btn primary" type="button" data-rc="pano">Mode panorama</button><button class="btn primary" type="button" data-rc="menu">Retour au menu</button></div></section>' +
+      '<button class="btn primary" type="button" data-rc="pano">Mode panorama</button><button class="btn primary" type="button" data-rc="menu">Retour au menu</button><button class="btn wide" type="button" data-rc="pair">Afficher le QR de jumelage sur la TV</button></div></section>' +
       '<section class="card slides" id="slides"><h3>Aller à une diapo</h3>';
     slideNames().forEach(function (n, i) { h += '<button class="btn" type="button" data-rc="goto" data-n="' + i + '">' + (i + 1) + ". " + esc(n) + "</button>"; });
     return h + '</section><button class="btn ghost" type="button" data-act="rc-forget">Dissocier cette TV</button>';
