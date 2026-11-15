@@ -4,6 +4,11 @@ window.QON = {
   brand: "Queen of Nails",
   tagline: "Onglerie & beauté des mains",
   slideSeconds: 11,
+  // Mode panorama : s'active seul après X minutes sans toucher la télécommande
+  panoramaAfterMinutes: 3,
+  // Photos de réalisations (chemins relatifs, ex. "photos/01.jpg"). Vide = décors générés.
+  gallery: [],
+  quotes: ["Des ongles qui vous ressemblent.", "Prenez un moment pour vous.", "Le détail qui change tout.", "Chaque ongle, une petite œuvre."],
   // Renseigner pour les afficher sur la dernière diapo (laisser "" pour masquer)
   contact: { phone: "", instagram: "", address: "", hours: "" },
   sections: [

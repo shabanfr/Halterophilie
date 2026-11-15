@@ -44,7 +44,7 @@
     return parts.join(" ") + " <em>" + last + "</em>";
   }
 
-  var slides = [];
+  var slides = [], qrSVG = "";
 
   // 1. Hero
   slides.push('<section class="slide hero">' +
@@ -91,7 +91,8 @@
     qr.addData(url);
     qr.make();
     var box = document.getElementById("qr");
-    if (box) box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    qrSVG = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    if (box) box.innerHTML = qrSVG;
   } catch (e) {}
 
   // Étincelles décoratives
@@ -141,8 +142,68 @@
     paused = !paused;
     if (paused) { clearTimeout(timer); bar.className = "run paused"; } else { schedule(); }
   }
+
+  // ---------- Mode panorama (cliente en cours de soin) ----------
+  var ARTS = [["#F6D3CC", "#E7A9AE"], ["#F3E1CB", "#D9B48B"], ["#E9B8BC", "#B9637A"], ["#F8E3DE", "#D18B94"], ["#EBC9BE", "#C9828B"], ["#F5DDD7", "#BE9468"]];
+  function artCard(i) {
+    var a = ARTS[i % ARTS.length], b = ARTS[(i + 2) % ARTS.length];
+    var ns = nailSVG(5.2, 12, a) + nailSVG(5.2, 14, b) + nailSVG(5.2, 11, ARTS[(i + 4) % ARTS.length]);
+    var pos = ["left:3rem;top:4.6rem;transform:rotate(-14deg)", "left:10.4rem;top:2.6rem;transform:rotate(4deg)", "left:17.8rem;top:5.2rem;transform:rotate(16deg)"];
+    var parts = ns.split("</svg>");
+    var h = "";
+    for (var j = 0; j < 3; j++) h += '<div style="position:absolute;' + pos[j] + '">' + parts[j] + "</svg></div>";
+    return '<div class="pc art" style="background:linear-gradient(150deg,' + a[0] + "," + b[0] + ')">' + h +
+      '<svg class="st" viewBox="0 0 24 24" style="left:' + (2 + (i * 7) % 18) + 'rem;top:' + (1.4 + (i * 3) % 6) + 'rem"><use href="#spark"/></svg></div>';
+  }
+  function photoCard(src) { return '<div class="pc photo" style="background-image:url(' + src + ')"></div>'; }
+  var flat = [];
+  D.sections.forEach(function (s) { s.items.forEach(function (it) { flat.push({ kicker: s.kicker, it: it }); }); });
+  function svcCard(n) {
+    var o = flat[n % flat.length];
+    return '<div class="pc svc"><small>' + o.kicker + '</small><b>' + o.it.name + '</b><span>' + (o.it.from ? "dès " : "") + o.it.price + ' €</span></div>';
+  }
+  var Q = D.quotes && D.quotes.length ? D.quotes : [D.tagline];
+  function quoteCard(n) { return '<div class="pc quote"><p>« ' + Q[n % Q.length] + ' »</p></div>'; }
+  function brandCard() { return '<div class="pc brand">' + logo() + "<b>" + D.brand + "</b><small>" + D.tagline + "</small></div>"; }
+  function rowHTML(off) {
+    var out = [], g = D.gallery || [], gi = 0, n = 0;
+    for (var i = 0; i < 10; i++) {
+      var t = (i + off) % 5;
+      if (t === 0) out.push(g.length ? photoCard(g[gi++ % g.length]) : artCard(i + off));
+      else if (t === 1) out.push(svcCard(i + off));
+      else if (t === 2) out.push(artCard(i + off + 1));
+      else if (t === 3) out.push(quoteCard(i * 3 + off));
+      else out.push(i % 2 ? brandCard() : svcCard(i + off + 3));
+    }
+    var one = out.join("");
+    return '<div class="prow">' + one + one + "</div>";
+  }
+  var pano = document.createElement("section");
+  pano.id = "pano";
+  pano.innerHTML = top() + '<div class="rows">' + rowHTML(0) + rowHTML(2) + "</div>" +
+    (qrSVG ? '<div class="pqr">' + qrSVG + "<span>Nos tarifs</span></div>" : "");
+  document.body.appendChild(pano);
+
+  var mode = "menu", idleT = null, idleMs = (D.panoramaAfterMinutes || 3) * 60000;
+  function enterPano() {
+    if (mode === "pano") return;
+    mode = "pano";
+    clearTimeout(timer);
+    bar.className = "";
+    document.body.classList.add("is-pano");
+    pano.classList.add("on");
+  }
+  function exitPano() {
+    mode = "menu";
+    document.body.classList.remove("is-pano");
+    pano.classList.remove("on");
+    show(0);
+  }
+  function bump() { clearTimeout(idleT); idleT = setTimeout(enterPano, idleMs); }
   window.addEventListener("keydown", function (e) {
     var k = e.keyCode;
+    if (mode === "pano") { e.preventDefault(); exitPano(); bump(); return; }
+    bump();
     if (k === 39 || k === 40 || k === 34 || k === 87) { e.preventDefault(); show(cur + 1); }
     else if (k === 37 || k === 38 || k === 33) { e.preventDefault(); show(cur - 1); }
     else if (k === 13 || k === 32 || k === 179 || k === 23) { e.preventDefault(); togglePause(); }
@@ -153,5 +214,7 @@
   if ("serviceWorker" in navigator) try { navigator.serviceWorker.register("sw.js"); } catch (e) {}
   var start = /[?&]slide=(\d+)/.exec(qs);
   show(start ? parseInt(start[1], 10) : 0);
+  bump();
+  if (/[?&]pano=1/.test(qs)) enterPano();
   if (/[?&]still=1/.test(qs)) { paused = true; clearTimeout(timer); bar.className = "run paused"; }
 })();
