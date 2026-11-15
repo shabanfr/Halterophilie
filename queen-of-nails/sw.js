@@ -1,5 +1,5 @@
 /* Cache réseau-d'abord : contenu à jour si en ligne, dernier contenu connu si hors-ligne. */
-var CACHE = "qon-v1";
+var CACHE = "qon-v2";
 var ASSETS = ["./", "index.html", "style.css", "app.js", "data.js", "qr.js", "manifest.webmanifest", "icons/icon.svg"];
 
 self.addEventListener("install", function (e) {

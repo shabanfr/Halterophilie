@@ -2,7 +2,7 @@
 (function () {
   var D = window.QON;
   var qs = location.search;
-  var isTV = window.innerWidth >= 1100 || /[?&]tv=1/.test(qs);
+  var isTV = window.innerWidth >= 1100 || /[?&]tv=1/.test(qs) || /Android TV|AFT|BRAVIA|SmartTV|Fully/i.test(navigator.userAgent);
   if (/[?&]phone=1/.test(qs)) isTV = false;
   var root = document.documentElement;
   root.className = isTV ? "tv" : "phone";
@@ -76,7 +76,7 @@
     '<div class="qr" id="qr"></div>' +
     '<div class="txt"><div class="kicker">Garde-nous dans ta poche</div>' +
     '<h2>Scanne &amp; <em>retrouve</em> nos tarifs</h2>' +
-    '<p>Ouvre l’appareil photo de ton téléphone, vise le code, puis « Sur l’écran d’accueil ».</p>' +
+    '<p>Vise le code avec l’appareil photo de ton téléphone.</p>' +
     (lines ? "<ul>" + lines + "</ul>" : "") +
     '<div class="install"><b>iPhone :</b> bouton Partager, puis « Sur l’écran d’accueil ».<br><b>Android :</b> menu ⋮, puis « Installer l’application ».</div>' +
     '</div></section>');
@@ -91,7 +91,7 @@
     qr.addData(url);
     qr.make();
     var box = document.getElementById("qr");
-    qrSVG = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    qrSVG = qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true });
     if (box) box.innerHTML = qrSVG;
   } catch (e) {}
 
@@ -119,6 +119,7 @@
   var dotEls = dots.getElementsByTagName("i");
   var cur = -1, timer = null, paused = false, dur = (D.slideSeconds || 11) * 1000;
 
+  function durOf(i) { var c = els[i].className; return ((/menu/.test(c) ? 16 : /book/.test(c) ? 12 : 7) * (D.slideSeconds || 11) / 11) * 1000; }
   function runBar() {
     bar.className = "";
     void bar.offsetWidth;
@@ -129,6 +130,7 @@
     i = (i + els.length) % els.length;
     if (cur >= 0) { els[cur].classList.remove("on"); dotEls[cur].classList.remove("on"); }
     cur = i;
+    dur = durOf(cur);
     els[cur].classList.add("on");
     dotEls[cur].classList.add("on");
     schedule();
@@ -138,8 +140,11 @@
     runBar();
     if (!paused) timer = setTimeout(function () { show(cur + 1); }, dur);
   }
+  var keysT;
+  function flashKeys() { document.body.classList.add("keys"); clearTimeout(keysT); keysT = setTimeout(function () { document.body.classList.remove("keys"); }, 5000); }
   function togglePause() {
     paused = !paused;
+    document.body.classList.toggle("paused", paused);
     if (paused) { clearTimeout(timer); bar.className = "run paused"; } else { schedule(); }
   }
 
@@ -163,7 +168,7 @@
     return '<div class="pc svc"><small>' + o.kicker + '</small><b>' + o.it.name + '</b><span>' + (o.it.from ? "dès " : "") + o.it.price + ' €</span></div>';
   }
   var Q = D.quotes && D.quotes.length ? D.quotes : [D.tagline];
-  function quoteCard(n) { return '<div class="pc quote"><p>« ' + Q[n % Q.length] + ' »</p></div>'; }
+  function quoteCard(n) { return '<div class="pc quote"><p>«\u00a0' + Q[n % Q.length] + '\u00a0»</p></div>'; }
   function brandCard() { return '<div class="pc brand">' + logo() + "<b>" + D.brand + "</b><small>" + D.tagline + "</small></div>"; }
   function rowHTML(off) {
     var out = [], g = D.gallery || [], gi = 0, n = 0;
@@ -172,7 +177,7 @@
       if (t === 0) out.push(g.length ? photoCard(g[gi++ % g.length]) : artCard(i + off));
       else if (t === 1) out.push(svcCard(i + off));
       else if (t === 2) out.push(artCard(i + off + 1));
-      else if (t === 3) out.push(quoteCard(i * 3 + off));
+      else if (t === 3) out.push(quoteCard(i * 3 + (off ? 1 : 0)));
       else out.push(i % 2 ? brandCard() : svcCard(i + off + 3));
     }
     var one = out.join("");
@@ -188,28 +193,35 @@
   function enterPano() {
     if (mode === "pano") return;
     mode = "pano";
+    if (navigator.onLine && Date.now() - t0 > 6 * 3600 * 1000) { location.reload(); return; }
     clearTimeout(timer);
     bar.className = "";
     document.body.classList.add("is-pano");
     pano.classList.add("on");
+    clearTimeout(panoT);
+    panoT = setTimeout(function () { exitPano(); bump(loopMs()); }, PANO_MS);
   }
   function exitPano() {
+    clearTimeout(panoT);
     mode = "menu";
     document.body.classList.remove("is-pano");
     pano.classList.remove("on");
     show(0);
   }
-  function bump() { clearTimeout(idleT); idleT = setTimeout(enterPano, idleMs); }
+  var panoT = null, PANO_MS = (D.panoramaSeconds || 120) * 1000;
+  function bump(ms) { clearTimeout(idleT); idleT = setTimeout(enterPano, ms || idleMs); }
+  function loopMs() { var t = 0; for (var q = 0; q < els.length; q++) t += durOf(q); return t + 500; }
   window.addEventListener("keydown", function (e) {
     var k = e.keyCode;
     if (mode === "pano") { e.preventDefault(); exitPano(); bump(); return; }
     bump();
+    flashKeys();
     if (k === 39 || k === 40 || k === 34 || k === 87) { e.preventDefault(); show(cur + 1); }
     else if (k === 37 || k === 38 || k === 33) { e.preventDefault(); show(cur - 1); }
     else if (k === 13 || k === 32 || k === 179 || k === 23) { e.preventDefault(); togglePause(); }
   });
-  // Rechargement quotidien (récupère les mises à jour du contenu)
-  setTimeout(function () { location.reload(); }, 6 * 3600 * 1000);
+  // Rechargement toutes les 6 h, seulement en ligne et pendant le panorama (récupère les mises à jour)
+  var t0 = Date.now();
 
   if ("serviceWorker" in navigator) try { navigator.serviceWorker.register("sw.js"); } catch (e) {}
   var start = /[?&]slide=(\d+)/.exec(qs);
