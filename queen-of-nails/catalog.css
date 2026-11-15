@@ -72,3 +72,11 @@
   .cat-scene.on .cat-fig{animation:none}
   .cat-head,.cat-item,.cat-scene.on .cat-head,.cat-scene.on .cat-item{transform:none;transition:opacity .4s ease;transition-delay:0s}
 }
+
+/* Grilles centrées quand certains éléments sont masqués */
+.cat-couleurs .cat-grid,.cat-designs .cat-grid,.cat-formes .cat-grid{justify-content:center}
+.cat-couleurs .cat-item,.cat-designs .cat-item{margin:.6rem .8rem}
+.cat-formes .cat-item{margin:0 .9rem}
+/* Catalogue dans le diaporama */
+.slide .cs-wrap{position:absolute;left:0;right:0;top:10.5rem;bottom:6rem}
+html.phone .catslide{display:none}

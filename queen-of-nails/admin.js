@@ -14,6 +14,7 @@
     { id: "designs", name: "Catalogue : les designs" }
   ];
   var ARTS = [["", "Automatique"], ["manucure", "Manucure"], ["pose", "Pose gel / capsules"], ["art", "Nail art"], ["pedicure", "Pédicure"], ["soin", "Soin des mains"], ["depose", "Dépose"], ["defaut", "Couronne Queen of Nails"]];
+  var CATNAMES = { formes: "Les formes", longueurs: "Les longueurs", couleurs: "Les couleurs", designs: "Les designs" };
   var state = null;            // contenu en cours d'édition
   var pending = {};
   var pendingAudio = {};     // chemin -> dataURL des nouvelles musiques (en mémoire seulement)            // chemin -> dataURL des nouvelles photos
@@ -133,7 +134,9 @@
   }
   function viewPhotos() {
     var g = state.gallery || [];
-    var h = '<h2>Tes <em>photos</em></h2><p class="hint">Ajoute tes réalisations : elles défilent dans le panorama. Les photos sont réduites automatiquement pour la TV.</p>' +
+    var h = '<h2>Tes <em>photos</em></h2><p class="hint">Ajoute tes réalisations : elles s’affichent dans une diapo « Nos réalisations » et dans le panorama. Les photos sont réduites automatiquement pour la TV.</p>' +
+      '<section class="card"><label style="margin-top:0">Ordre d’affichage</label><select data-k="galleryOrder">' +
+      [["recent", "Les plus récentes d’abord"], ["random", "Aléatoire"], ["list", "Dans l’ordre de ma liste"]].map(function (o) { return '<option value="' + o[0] + '"' + ((state.galleryOrder || "recent") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></section>" +
       '<label class="btn primary" style="display:block;text-align:center;margin-bottom:14px">+ Ajouter des photos<input id="file" type="file" accept="image/*" multiple hidden></label>';
     if (!g.length) return h + '<div class="empty">Aucune photo pour l’instant.<br>Le panorama utilise des décors d’ongles.</div>';
     h += '<div class="grid">';
@@ -152,6 +155,51 @@
       '<section class="card"><h3>QR code de la TV</h3><p class="hint">Les clientes le scannent avec leur téléphone. Mets le lien de ton choix : Instagram, réservation, avis Google… Laisse vide pour le site lui-même.</p>' +
       field("Lien du QR code", "qr.url", "url", ' placeholder="https://instagram.com/…"') + field("Petit titre", "qr.kicker") + field("Titre", "qr.title") +
       field("Texte", "qr.text") + field("Libellé du mini QR (panorama)", "qr.label") + "</section>";
+  }
+  function viewCatalogue() {
+    var C = state.catalog = state.catalog || {};
+    C.hide = C.hide || {}; C.names = C.names || {}; C.colors = C.colors || [];
+    if (!window.QONCatalog) return '<h2>Catalogue</h2><div class="empty">Catalogue indisponible.</div>';
+    var items = window.QONCatalog.items(state), wanted = state.catalogSlides || [];
+    var h = '<h2>Le <em>catalogue</em></h2><p class="hint">Formes, longueurs, couleurs et designs d’ongles. Choisis ce qui s’affiche, change les noms, ajoute tes couleurs.</p>' +
+      '<section class="card"><h3>Dans le diaporama</h3><p class="hint">Chaque page cochée devient une diapo. Le catalogue passe aussi dans le panorama (onglet Panorama).</p>';
+    ["formes", "longueurs", "couleurs", "designs"].forEach(function (sc) {
+      h += '<label class="chk"><input type="checkbox" data-cslide="' + sc + '"' + (wanted.indexOf(sc) >= 0 ? " checked" : "") + ">" + CATNAMES[sc] + "</label>";
+    });
+    h += "</section>";
+    ["formes", "longueurs", "couleurs", "designs"].forEach(function (sc) {
+      h += '<section class="card"><h3>' + CATNAMES[sc] + "</h3>";
+      var ci = -1;
+      items[sc].forEach(function (it) {
+        if (it.custom) ci++;
+        var hidden = (C.hide[sc] || []).indexOf(it.id) >= 0;
+        h += '<div class="item" style="padding-top:8px;margin-top:8px"><label class="chk" style="margin-top:0"><input type="checkbox" data-chide="' + sc + ":" + it.id + '"' + (hidden ? "" : " checked") + ">Afficher" +
+          (it.hex ? ' <span style="display:inline-block;width:16px;height:16px;border-radius:8px;margin-left:8px;border:1px solid var(--line);background:' + esc(it.hex) + '"></span>' : "") + "</label>" +
+          '<input type="text" data-cname="' + it.id + '" value="' + esc(C.names[it.id] || it.name) + '" style="margin-top:6px">' +
+          (it.custom ? '<div class="tools"><button class="btn small danger" type="button" data-act="cc-del" data-i="' + ci + '">Supprimer</button></div>' : "") + "</div>";
+      });
+      if (sc === "couleurs") {
+        h += '<div class="item"><label>Ajouter une couleur</label><div class="row2"><input type="text" id="ccname" placeholder="Nom (ex. Lavande)"><input type="color" id="cchex" value="#C9A0DC" style="height:48px;padding:4px;width:100%;border:1px solid var(--line);border-radius:12px;background:var(--blush)"></div>' +
+          '<button class="btn" type="button" data-act="cc-add" style="margin-top:10px;width:100%">+ Ajouter</button></div>';
+      }
+      h += "</section>";
+    });
+    return h;
+  }
+  function viewDemandes() {
+    var r = state.requests = state.requests || [];
+    var h = '<h2>Mes <em>demandes</em></h2><p class="hint">Décris ce que tu voudrais : un nouveau design, une couleur, une page, un changement d’affichage… Ta demande est enregistrée sur la TV et sera traitée à la prochaine mise à jour du site.</p>' +
+      '<section class="card"><label style="margin-top:0">Ta demande</label><textarea id="reqtext" rows="4" placeholder="Ex. : ajouter un design « marbre rose » et une diapo pour les offres du mois"></textarea>' +
+      '<button class="btn primary" type="button" data-act="req-add" style="width:100%;margin-top:12px">Envoyer la demande</button></section>';
+    if (!r.length) return h + '<div class="empty">Aucune demande pour l’instant.</div>';
+    h += '<section class="card"><h3>Mes demandes (' + r.length + ")</h3>";
+    r.slice().reverse().forEach(function (q) {
+      var i = r.indexOf(q);
+      h += '<div class="item"><div style="font-size:13px;color:var(--ink-soft)">' + esc(q.date || "") + '<span class="pill">' + (q.status === "done" ? "Faite ✔" : "En attente") + "</span></div>" +
+        '<p style="margin-top:6px;white-space:pre-wrap">' + esc(q.text) + "</p>" + (q.note ? '<p class="hint" style="margin-top:4px">Réponse : ' + esc(q.note) + "</p>" : "") +
+        '<div class="tools"><button class="btn small danger" type="button" data-act="req-del" data-i="' + i + '">Supprimer</button></div></div>';
+    });
+    return h + "</section>";
   }
   function viewMusique() {
     var m = state.music = state.music || { enabled: true, volume: 30, shuffle: true, tracks: [] };
@@ -183,6 +231,10 @@
     var n = ["Accueil"];
     state.sections.filter(function (x) { return !x.hidden; }).forEach(function (x) { n.push(x.title); });
     if ((state.gallery || []).length) n.push("Réalisations");
+    if (window.QONCatalog) {
+      var have = window.QONCatalog.scenes(state).map(function (x) { return x.id; });
+      (state.catalogSlides || []).forEach(function (id) { if (have.indexOf(id) >= 0) n.push(CATNAMES[id] || id); });
+    }
     n.push("QR code");
     return n;
   }
@@ -252,7 +304,7 @@
   }
   function render() {
     var y = window.scrollY;
-    $("#view").innerHTML = ({ prestations: viewPrestations, pano: viewPano, photos: viewPhotos, infos: viewInfos, musique: viewMusique, tele: viewTele, publier: viewPublier })[tab]();
+    $("#view").innerHTML = ({ prestations: viewPrestations, pano: viewPano, photos: viewPhotos, catalogue: viewCatalogue, demandes: viewDemandes, infos: viewInfos, musique: viewMusique, tele: viewTele, publier: viewPublier })[tab]();
     if (tab === "tele" || tab === "musique") { listen(); if (rcCode) send("hello"); paintLive(); }
     Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function (b) { b.classList.toggle("on", b.getAttribute("data-tab") === tab); });
     window.scrollTo(0, y);
@@ -267,6 +319,12 @@
       if (t.getAttribute("data-num")) v = v === "" ? "" : Number(String(v).replace(",", "."));
       setPath(state, k, v); saveDraft(); return;
     }
+    var cnm = t.getAttribute("data-cname");
+    if (cnm) {
+      var C2 = state.catalog = state.catalog || {}; C2.names = C2.names || {};
+      if (t.value.trim()) C2.names[cnm] = t.value; else delete C2.names[cnm];
+      saveDraft(); return;
+    }
     if (t.id === "quotes") { state.quotes = t.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean); saveDraft(); return; }
     var c = t.getAttribute("data-cfg");
     if (c) { cfg[c] = t.value.trim(); lsSet("qon-cfg", JSON.stringify(cfg)); }
@@ -275,6 +333,19 @@
     var t = e.target, ck = t.getAttribute("data-chk"), sh = t.getAttribute("data-show");
     if (sh) { setPath(state, sh, !t.checked); saveDraft(); return; }
     if (ck) { setPath(state, ck, t.checked); saveDraft(); return; }
+    var cs2 = t.getAttribute("data-cslide"), ch = t.getAttribute("data-chide");
+    if (cs2) {
+      var arr3 = (state.catalogSlides || []).slice(), i3 = arr3.indexOf(cs2);
+      if (t.checked && i3 < 0) arr3.push(cs2); else if (!t.checked && i3 >= 0) arr3.splice(i3, 1);
+      var order = ["formes", "longueurs", "couleurs", "designs"];
+      state.catalogSlides = order.filter(function (x) { return arr3.indexOf(x) >= 0; }); saveDraft(); return;
+    }
+    if (ch) {
+      var pr = ch.split(":"), C3 = state.catalog = state.catalog || {}; C3.hide = C3.hide || {};
+      var l3 = (C3.hide[pr[0]] || []).slice(), j3 = l3.indexOf(pr[1]);
+      if (!t.checked && j3 < 0) l3.push(pr[1]); else if (t.checked && j3 >= 0) l3.splice(j3, 1);
+      C3.hide[pr[0]] = l3; saveDraft(); return;
+    }
     var sc = t.getAttribute("data-scene");
     if (sc) {
       var arr = (state.panoScenes || []).slice();
@@ -317,6 +388,20 @@
     else if (a === "rc-save") { var v = ($("#rcin").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, ""); if (v.length < 6) { say("Code trop court.", "err"); return; } rcCode = v; lsSet("qon-rc", v); say("TV associée ✔", "ok"); render(); return; }
     else if (a === "rc-forget") { rcCode = ""; try { localStorage.removeItem("qon-rc"); } catch (e) {} if (es) { es.close(); es = null; esCode = ""; } render(); return; }
     else if (a === "trk-del") { if (!confirmDel(b)) return; var ti = Number(b.getAttribute("data-i")), tp = state.music.tracks[ti]; state.music.tracks.splice(ti, 1); if (tp) delete pendingAudio[tp.src]; }
+    else if (a === "cc-add") {
+      var cn = ($("#ccname").value || "").trim(), cx = $("#cchex").value;
+      if (!cn) { say("Donne un nom à la couleur.", "err"); return; }
+      var C4 = state.catalog = state.catalog || {}; C4.colors = C4.colors || []; C4.colors.push({ name: cn, hex: cx });
+    }
+    else if (a === "cc-del") { if (!confirmDel(b)) return; state.catalog.colors.splice(Number(b.getAttribute("data-i")), 1); }
+    else if (a === "req-add") {
+      var rt = ($("#reqtext").value || "").trim();
+      if (!rt) { say("Écris ta demande d’abord.", "err"); return; }
+      state.requests = state.requests || [];
+      state.requests.push({ id: Date.now().toString(36), date: new Date().toISOString().slice(0, 10), text: rt, status: "new" });
+      saveDraft(); render(); publish(); return;
+    }
+    else if (a === "req-del") { if (!confirmDel(b)) return; state.requests.splice(Number(b.getAttribute("data-i")), 1); }
     else if (a === "export") { copy(JSON.stringify(state, null, 2)); return; }
     else if (a === "import") { importJSON(); return; }
     else if (a === "reset") { resetAll(); return; }

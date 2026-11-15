@@ -394,47 +394,72 @@
     return "<div class=\"cat-scene cat-" + mod + "\">" + headHtml + "<div class=\"cat-grid\">" + items + "</div></div>";
   }
 
+  function slug(t) { return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  function allColors(C) {
+    var a = COLORS.slice(), k, cc = (C && C.colors) || [];
+    for (k = 0; k < cc.length; k++) if (cc[k] && cc[k].name && cc[k].hex) a.push([cc[k].name, cc[k].hex, !!cc[k].metal, true]);
+    return a;
+  }
+  // liste des éléments (pour l'appli de gestion) : { formes:[{id,name}], longueurs:[…], couleurs:[{id,name,hex,custom}], designs:[…] }
+  function items(D) {
+    var C = (D && D.catalog) || {}, o = { formes: [], longueurs: [], couleurs: [], designs: [] }, i, cl = allColors(C);
+    for (i = 0; i < SHAPES.length; i++) o.formes.push({ id: SHAPES[i][0], name: SHAPES[i][1] });
+    for (i = 0; i < SIZES.length; i++) o.longueurs.push({ id: SIZES[i][0], name: SIZES[i][1] });
+    for (i = 0; i < cl.length; i++) o.couleurs.push({ id: slug(cl[i][0]), name: cl[i][0], hex: cl[i][1], custom: !!cl[i][3] });
+    for (i = 0; i < STYLES.length; i++) o.designs.push({ id: STYLES[i][0], name: STYLES[i][1] });
+    return o;
+  }
+
   function scenes(D) {
-    var i, s, out = [];
+    var i, s, out = [], C = (D && D.catalog) || {}, hide = C.hide || {}, names = C.names || {}, anyHidden = false, k;
+    for (k in hide) if (hide[k] && hide[k].length) anyHidden = true;
+    function shown(sc, id) { var h = hide[sc] || []; return h.indexOf(id) < 0; }
+    function nm(id, def) { return esc(names[id] || def); }
+    var COL = allColors(C);
 
     s = "";
     for (i = 0; i < SHAPES.length; i++) {
-      s += item(nailSVG({ shape: SHAPES[i][0], length: 168, color: "#E7A3AE", finger: true }), SHAPES[i][1], SHAPES[i][2]);
+      if (!shown("formes", SHAPES[i][0])) continue;
+      s += item(nailSVG({ shape: SHAPES[i][0], length: 168, color: "#E7A3AE", finger: true }), nm(SHAPES[i][0], SHAPES[i][1]), SHAPES[i][2]);
     }
-    out.push({
-      id: "formes", title: "Les formes", subtitle: "Huit silhouettes, de la plus sage à la plus audacieuse",
-      html: scene("formes", head("Catalogue · 1 / 4", "Les <em>formes</em>", "Huit silhouettes, de la plus sage à la plus audacieuse"), s)
+    if (s) out.push({
+      id: "formes", title: "Les formes", subtitle: "De la plus sage à la plus audacieuse",
+      html: scene("formes", head("Catalogue", "Les <em>formes</em>", "De la plus sage à la plus audacieuse"), s)
     });
 
     s = "";
     for (i = 0; i < SIZES.length; i++) {
-      s += item(nailSVG({ shape: "amande", length: SIZES[i][0], color: "#D98A9A", finger: true }), SIZES[i][1], SIZES[i][2]);
+      if (!shown("longueurs", SIZES[i][0])) continue;
+      s += item(nailSVG({ shape: "amande", length: SIZES[i][0], color: "#D98A9A", finger: true }), nm(SIZES[i][0], SIZES[i][1]), SIZES[i][2]);
     }
-    out.push({
-      id: "longueurs", title: "Les longueurs", subtitle: "La même forme amande, de la plus courte à la plus longue",
-      html: scene("longueurs", head("Catalogue · 2 / 4", "Les <em>longueurs</em>", "La même forme amande, de la plus courte à la plus longue"), s)
+    if (s) out.push({
+      id: "longueurs", title: "Les longueurs", subtitle: "La même forme, de la plus courte à la plus longue",
+      html: scene("longueurs", head("Catalogue", "Les <em>longueurs</em>", "La même forme, de la plus courte à la plus longue"), s)
     });
 
     s = "";
-    for (i = 0; i < COLORS.length; i++) {
-      s += item(nailSVG({ shape: "ovale", length: 124, color: COLORS[i][1], metal: !!COLORS[i][2] }), COLORS[i][0], "", "cat-card");
+    for (i = 0; i < COL.length; i++) {
+      var cid = slug(COL[i][0]);
+      if (!shown("couleurs", cid)) continue;
+      s += item(nailSVG({ shape: "ovale", length: 124, color: COL[i][1], metal: !!COL[i][2] }), nm(cid, COL[i][0]), "", "cat-card");
     }
-    out.push({
-      id: "couleurs", title: "Les couleurs", subtitle: "Douze teintes tendance, finition brillante",
-      html: scene("couleurs", head("Catalogue · 3 / 4", "Les <em>couleurs</em>", "Douze teintes tendance, finition brillante"), s)
+    if (s) out.push({
+      id: "couleurs", title: "Les couleurs", subtitle: "Des teintes tendance, finition brillante",
+      html: scene("couleurs", head("Catalogue", "Les <em>couleurs</em>", "Des teintes tendance, finition brillante"), s)
     });
 
     s = "";
     for (i = 0; i < STYLES.length; i++) {
-      s += item(nailSVG({ shape: "amande", length: 126, design: STYLES[i][0] }), STYLES[i][1], "", "cat-card");
+      if (!shown("designs", STYLES[i][0])) continue;
+      s += item(nailSVG({ shape: "amande", length: 126, design: STYLES[i][0] }), nm(STYLES[i][0], STYLES[i][1]), "", "cat-card");
     }
-    out.push({
+    if (s) out.push({
       id: "designs", title: "Les designs", subtitle: "Du plus discret au plus précieux, réalisés à la main",
-      html: scene("designs", head("Catalogue · 4 / 4", "Les <em>designs</em>", "Du plus discret au plus précieux, réalisés à la main"), s)
+      html: scene("designs", head("Catalogue", "Les <em>designs</em>", "Du plus discret au plus précieux, réalisés à la main"), s)
     });
 
     return out;
   }
 
-  window.QONCatalog = { scenes: scenes, nailSVG: nailSVG };
+  window.QONCatalog = { scenes: scenes, nailSVG: nailSVG, items: items };
 })();

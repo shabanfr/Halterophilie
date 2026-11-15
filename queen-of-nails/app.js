@@ -69,12 +69,33 @@ function boot(D, rawJSON) {
   });
 
   // 4b. Réalisations (si des photos ont été ajoutées)
-  var GAL = D.gallery || [];
+  var GAL = (D.gallery || []).slice(), GO = D.galleryOrder || "recent", galQ = [];
+  function galList() {
+    var a = GAL.slice();
+    if (GO === "recent") a.reverse();
+    else if (GO === "random") for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function galNext(n) {
+    var o = [];
+    while (o.length < n && GAL.length) { if (!galQ.length) galQ = galList(); o.push(galQ.shift()); }
+    return o;
+  }
   if (GAL.length) {
     slides.push('<section class="slide menu gal">' + top() +
       '<div class="left"><div class="kicker">' + esc2(D.galleryKicker, "Nos réalisations") + '</div><h2>' + titleHTML(esc2(D.galleryTitle, "Vos plus belles créations")) +
       '</h2><p class="intro">' + esc2(D.galleryText, "Chaque ongle est unique, comme vous.") + '</p></div>' +
       '<div class="right"><div class="gal-row"></div></div></section>');
+  }
+
+  // 4c. Catalogue d'ongles (formes, couleurs, designs…) dans le diaporama
+  if (window.QONCatalog && window.QONCatalog.scenes) {
+    var csc = window.QONCatalog.scenes(D);
+    (D.catalogSlides || []).forEach(function (cid) {
+      csc.forEach(function (c) {
+        if (c.id === cid) slides.push('<section class="slide catslide" data-cat="' + cid + '">' + top() + '<div class="cs-wrap">' + c.html + "</div></section>");
+      });
+    });
   }
 
   // 5. Réservation / installation
@@ -99,9 +120,8 @@ function boot(D, rawJSON) {
   function galFill(el) {
     var row = el.querySelector(".gal-row");
     if (!row || !GAL.length) return;
-    var n = Math.min(4, GAL.length), h = "";
-    for (var gi = 0; gi < n; gi++) h += '<div class="gal-ph" style="background-image:url(' + GAL[(galOff + gi) % GAL.length] + ')"></div>';
-    galOff = (galOff + n) % GAL.length;
+    var pics = galNext(Math.min(4, GAL.length)), h = "";
+    for (var gi = 0; gi < pics.length; gi++) h += '<div class="gal-ph" style="background-image:url(' + pics[gi] + ')"></div>';
     row.innerHTML = h;
   }
   for (var gk = 0; gk < els.length; gk++) if (/\bgal\b/.test(els[gk].className)) galFill(els[gk]);
@@ -141,7 +161,7 @@ function boot(D, rawJSON) {
   var dotEls = dots.getElementsByTagName("i");
   var cur = -1, timer = null, paused = false, dur = (D.slideSeconds || 11) * 1000;
 
-  function durOf(i) { var c = els[i].className; return ((/\bgal\b/.test(c) ? 10 : /menu/.test(c) ? 16 : /book/.test(c) ? 12 : 7) * (D.slideSeconds || 11) / 11) * 1000; }
+  function durOf(i) { var c = els[i].className; return ((/\bgal\b/.test(c) ? 10 : /catslide/.test(c) ? 12 : /menu/.test(c) ? 16 : /book/.test(c) ? 12 : 7) * (D.slideSeconds || 11) / 11) * 1000; }
   function runBar() {
     bar.className = "";
     void bar.offsetWidth;
@@ -151,11 +171,15 @@ function boot(D, rawJSON) {
   function show(i) {
     if (typeof newData !== "undefined" && newData && navigator.onLine && cur >= 0) { location.reload(); return; }
     i = (i + els.length) % els.length;
-    if (cur >= 0) { els[cur].classList.remove("on"); dotEls[cur].classList.remove("on"); }
+    if (cur >= 0) {
+      els[cur].classList.remove("on"); dotEls[cur].classList.remove("on");
+      var pcs = els[cur].querySelector(".cat-scene"); if (pcs) pcs.classList.remove("on");
+    }
     cur = i;
     dur = durOf(cur);
     if (/\bgal\b/.test(els[cur].className)) galFill(els[cur]);
     els[cur].classList.add("on");
+    var ncs = els[cur].querySelector(".cat-scene"); if (ncs) ncs.classList.add("on");
     dotEls[cur].classList.add("on");
     schedule();
     if (typeof pubSoon === "function") pubSoon();
@@ -201,7 +225,7 @@ function boot(D, rawJSON) {
   function quoteCard(n) { return '<div class="pc quote"><p>«\u00a0' + Q[n % Q.length] + '\u00a0»</p></div>'; }
   function brandCard() { return '<div class="pc brand">' + logo() + "<b>" + D.brand + "</b><small>" + D.tagline + "</small></div>"; }
   function rowHTML(off) {
-    var out = [], g = D.gallery || [], gi = 0, n = 0;
+    var out = [], g = galList(), gi = 0, n = 0;
     for (var i = 0; i < 10; i++) {
       var t = (i + off) % 5;
       if (t === 0) out.push(g.length ? photoCard(g[gi++ % g.length]) : artCard(i + off));
@@ -236,13 +260,13 @@ function boot(D, rawJSON) {
   function galTick() {
     var fr = pano.querySelectorAll(".gs-f");
     if (!fr.length || !GAL.length) return;
+    var pics = galNext(fr.length);
     for (var q = 0; q < fr.length; q++) {
-      fr[q].style.backgroundImage = "url(" + GAL[(galK + q) % GAL.length] + ")";
+      fr[q].style.backgroundImage = "url(" + pics[q % pics.length] + ")";
       fr[q].className = fr[q].className.replace(/ gs-in/g, "");
       void fr[q].offsetWidth;
       fr[q].className += " gs-in";
     }
-    galK = (galK + 1) % GAL.length;
   }
   function setScene(i) {
     sceneIdx = i % sceneList.length;

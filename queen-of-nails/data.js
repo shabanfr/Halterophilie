@@ -36,6 +36,14 @@ window.QON = {
       { src: "music/sunny-side-up.mp3", title: "Sunny side up", on: true }
     ]
   },
+  // Photos : ordre d'affichage « recent » (les plus récentes d'abord), « random » (aléatoire) ou « list » (ordre de la liste).
+  galleryOrder: "recent",
+  // Diapos du catalogue d'ongles dans le diaporama (en plus du panorama) : formes, longueurs, couleurs, designs.
+  catalogSlides: ["formes", "couleurs", "designs"],
+  // Catalogue : éléments masqués { formes: ["stiletto"] }, noms changés { coffin: "Ballerine" }, couleurs ajoutées [{ name, hex }].
+  catalog: { hide: {}, names: {}, colors: [] },
+  // Demandes envoyées depuis l'appli de gestion (traitées à la prochaine session de travail).
+  requests: [],
   // QR code affiché à la TV : lien au choix (Instagram, réservation, avis Google…). Vide = adresse de ce site.
   qr: { url: "", kicker: "Garde-nous dans ta poche", title: "Scanne & retrouve nos tarifs", text: "Vise le code avec l’appareil photo de ton téléphone.", label: "Nos tarifs" },
   // Renseigner pour les afficher sur la dernière diapo (laisser "" pour masquer)
