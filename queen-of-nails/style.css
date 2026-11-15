@@ -106,7 +106,7 @@ body.paused #dots:after{content:"Pause";margin-left:1rem;font:600 1.3rem/1 var(-
 .hint{font:400 1.3rem/1 var(--body);color:var(--ink-soft);letter-spacing:.06em;opacity:0;transition:opacity .4s}
 body.keys .hint{opacity:.9}
 .hint span{font-weight:500;color:var(--rose-deep)}.hint .sep{margin:0 .6rem;color:var(--ink-soft)}
-#bar{position:fixed;left:0;bottom:0;right:0;height:.45rem;z-index:6}
+#bar{display:none}
 #bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--nude),var(--rose),var(--rose-deep));transform-origin:0 50%;transform:scaleX(0)}
 #bar.run i{animation:run linear forwards}
 @keyframes run{from{transform:scaleX(0)}to{transform:scaleX(1)}}
