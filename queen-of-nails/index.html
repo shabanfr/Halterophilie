@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Queen of Nails</title>
+<meta name="description" content="Queen of Nails, onglerie et beauté des mains : prestations et tarifs.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F8E6E2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Queen of Nails">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Symboles SVG partagés -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EFC3B9"/><stop offset=".55" stop-color="#D98F96"/><stop offset="1" stop-color="#B9637A"/>
+    </linearGradient>
+    <linearGradient id="g-gold" gradientUnits="userSpaceOnUse" x1="16" y1="18" x2="104" y2="86">
+      <stop offset="0" stop-color="#E6C9A3"/><stop offset="1" stop-color="#B98F66"/>
+    </linearGradient>
+    <symbol id="logo-mark" viewBox="0 0 120 100">
+      <!-- couronne monoline -->
+      <path d="M16 74 L24 34 L46 56 L60 22 L74 56 L96 34 L104 74 Z" fill="none" stroke="url(#g-gold)" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M18 85 H102" stroke="url(#g-gold)" stroke-width="3.2" stroke-linecap="round"/>
+      <circle cx="24" cy="31" r="4" fill="url(#g-gold)"/>
+      <circle cx="60" cy="18" r="4.6" fill="url(#g-gold)"/>
+      <circle cx="96" cy="31" r="4" fill="url(#g-gold)"/>
+      <!-- ongle central vernis -->
+      <path d="M52 76 V58 Q52 46 60 46 Q68 46 68 58 V76 Z" fill="url(#g-rose)"/>
+      <path d="M56 72 V59 Q56 52 59.4 50.4" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="spark" viewBox="0 0 24 24">
+      <path d="M12 0 C12.8 7.2 16.8 11.2 24 12 C16.8 12.8 12.8 16.8 12 24 C11.2 16.8 7.2 12.8 0 12 C7.2 11.2 11.2 7.2 12 0 Z" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="bg" aria-hidden="true">
+  <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i>
+  <div id="sparks"></div>
+</div>
+
+<main id="stage" aria-live="off"></main>
+
+<footer id="hud">
+  <div id="dots"></div>
+  <div class="hint"><span>◀ ▶</span> naviguer <span class="sep">·</span> <span>OK</span> pause</div>
+</footer>
+<div id="bar"><i></i></div>
+
+<script src="qr.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
