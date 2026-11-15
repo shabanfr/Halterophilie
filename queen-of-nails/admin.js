@@ -176,7 +176,8 @@
     return h + "</section>";
   }
   // ---------- télécommande ----------
-  var RC = "https://ntfy.sh/", rcCode = lsGet("qon-rc") || "", tvState = null, es = null, esCode = "";
+  var RC = "https://ntfy.sh/", RCL = false, rcCode = lsGet("qon-rc") || "", tvState = null, es = null, esCode = "";
+  try { fetch("__ping", { cache: "no-store" }).then(function (r) { RCL = r.ok; if (RCL && !rcCode) rcCode = "LOCAL"; if (state) render(); }).catch(function () {}); } catch (e) {}
   function slideNames() {
     var n = ["Accueil"];
     state.sections.filter(function (x) { return !x.hidden; }).forEach(function (x) { n.push(x.title); });
@@ -186,7 +187,7 @@
   function send(cmd, n) {
     if (!rcCode) { say("Scanne le code sur la TV ou saisis-le.", "err"); return; }
     var o = { cmd: cmd }; if (n != null) o.n = n;
-    fetch(RC + "qon-" + rcCode.toLowerCase(), { method: "POST", body: JSON.stringify(o) })
+    fetch(RCL ? "__rc" : RC + "qon-" + rcCode.toLowerCase(), { method: "POST", body: JSON.stringify(o) })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); })
       .catch(function () { say("Commande non envoyée (connexion ?).", "err"); });
   }
@@ -195,7 +196,7 @@
     if (es) es.close();
     esCode = rcCode;
     try {
-      es = new EventSource(RC + "qon-" + rcCode.toLowerCase() + "-s/sse");
+      es = new EventSource(RCL ? "__state/events" : RC + "qon-" + rcCode.toLowerCase() + "-s/sse");
       es.onmessage = function (ev) {
         try { var m = JSON.parse(ev.data); if (m.event !== "message") return; tvState = JSON.parse(m.message); if (tab === "tele" || tab === "musique") paintLive(); } catch (e) {}
       };
@@ -415,7 +416,7 @@
     }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, json: j }; }); });
   }
   // Mode test local (serveur de développement sur localhost / réseau Tailscale) : écrit directement les fichiers.
-  var isLocal = /^(localhost|127\.|100\.)/.test(location.hostname);
+  var isLocal = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|100\.)/.test(location.hostname);
   function putFile(rel, content64, msg) {
     if (isLocal) {
       return fetch("/__save", { method: "POST", body: JSON.stringify({ path: rel, b64: content64 }) })

@@ -282,7 +282,7 @@ function boot(D, rawJSON) {
 
   // ---------- Télécommande à distance (depuis l'appli du téléphone) ----------
   // Messages simples (« next », « pause »…) échangés via un salon ntfy.sh à code secret ; aucune donnée personnelle.
-  var RC_BASE = "https://ntfy.sh/";
+  var RC_BASE = "https://ntfy.sh/", RC_LOCAL = false;   // RC_LOCAL : relais fourni par le serveur de la TV (sans internet)
   var rcCode = "";
   try { rcCode = localStorage.getItem("qon-rc") || ""; } catch (e) {}
   if (!rcCode) {
@@ -293,7 +293,7 @@ function boot(D, rawJSON) {
   function pubState() {
     try {
       var st = { slide: cur, total: els.length, mode: mode, paused: paused, scene: sceneList[sceneIdx], music: mState(), t: Date.now() };
-      fetch(RC_BASE + rcTopic + "-s", { method: "POST", body: JSON.stringify(st) });
+      fetch(RC_LOCAL ? "__state" : RC_BASE + rcTopic + "-s", { method: "POST", body: JSON.stringify(st) });
     } catch (e) {}
   }
   var pubT = null;
@@ -330,7 +330,7 @@ function boot(D, rawJSON) {
   function rcListen() {
     if (!window.EventSource) return;
     var es;
-    try { es = new EventSource(RC_BASE + rcTopic + "/sse"); } catch (e) { return; }
+    try { es = new EventSource(RC_LOCAL ? "__rc/events" : RC_BASE + rcTopic + "/sse"); } catch (e) { return; }
     es.onmessage = function (ev) {
       try {
         var m = JSON.parse(ev.data);
@@ -339,7 +339,9 @@ function boot(D, rawJSON) {
       } catch (e) {}
     };
   }
-  rcListen();
+  try {
+    fetch("__ping", { cache: "no-store" }).then(function (r) { RC_LOCAL = r.ok; }).catch(function () {}).then(rcListen);
+  } catch (e) { rcListen(); }
   var _show = show;
   window.addEventListener("keydown", function (e) {
     var k = e.keyCode;
