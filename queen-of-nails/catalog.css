@@ -1,0 +1,82 @@
+/* Queen of Nails — catalogue d'ongles (panorama TV). 1rem = 1vw.
+   Toutes les classes sont préfixées cat-. Animations : transform + opacity uniquement. */
+.cat-scene{position:absolute;left:0;top:0;right:0;bottom:0;padding:0 6rem;
+  display:flex;flex-direction:column;
+  font-family:var(--body,"Outfit","Segoe UI",system-ui,sans-serif);color:var(--ink,#3B2229);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .35s ease,visibility 0s linear .35s}
+.cat-scene.on{opacity:1;visibility:visible;transition:opacity .5s ease,visibility 0s}
+.cat-scene *{box-sizing:border-box;margin:0;padding:0}
+
+/* ---------- En-tête de scène ---------- */
+.cat-head{flex:none;padding-bottom:.6rem}
+.cat-kicker{font:500 1.4rem/1 var(--body,"Outfit",sans-serif);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep,#A8566B)}
+.cat-headrow{display:flex;align-items:flex-end;justify-content:space-between;margin-top:1.1rem}
+.cat-title{font:400 4.4rem/1 var(--display,"Fraunces",Georgia,serif);letter-spacing:-.01em;color:var(--ink,#3B2229);white-space:nowrap}
+.cat-title em{font-style:italic;color:var(--rose-deep,#A8566B)}
+.cat-sub{font:400 1.7rem/1.25 var(--body,"Outfit",sans-serif);color:var(--ink-soft,#7A5560);text-align:right;padding:0 0 .55rem 3rem}
+
+/* ---------- Grille ---------- */
+.cat-grid{flex:1;min-height:0;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;align-content:space-around}
+.cat-item{display:flex;flex-direction:column;align-items:center;text-align:center}
+.cat-fig{display:flex;align-items:flex-end;justify-content:center}
+.cat-nail{display:block;height:auto;overflow:visible}
+.cat-name{font:500 1.9rem/1.15 var(--body,"Outfit",sans-serif);color:var(--ink,#3B2229);margin-top:1rem}
+.cat-desc{font:400 1.5rem/1.25 var(--body,"Outfit",sans-serif);color:var(--ink-soft,#7A5560);margin-top:.4rem}
+
+/* 1. Formes : 8 sur une rangée */
+.cat-formes .cat-grid{align-items:flex-start;align-content:center}
+.cat-formes .cat-item{width:11rem}
+.cat-formes .cat-nail{width:9.8rem}
+.cat-formes .cat-name{font:500 2.2rem/1.1 var(--display,"Fraunces",Georgia,serif)}
+
+/* 2. Longueurs : 4 doigts alignés sur la base */
+.cat-longueurs .cat-grid{justify-content:center}
+.cat-longueurs .cat-item{width:19rem}
+.cat-longueurs .cat-nail{width:9.6rem}
+.cat-longueurs .cat-name{font:500 2.4rem/1.1 var(--display,"Fraunces",Georgia,serif)}
+.cat-longueurs .cat-desc{font-size:1.6rem}
+
+/* 3 et 4. Couleurs / designs : 6 × 2 sur cartes */
+.cat-card{width:13.9rem;padding:1rem .4rem .95rem;border-radius:2rem;
+  background:var(--card,rgba(255,255,255,.62));border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 .5rem 1.2rem rgba(168,86,107,.09)}
+.cat-card .cat-nail{width:7.6rem}
+.cat-card .cat-name{font:500 1.7rem/1.15 var(--body,"Outfit",sans-serif);margin-top:.7rem;white-space:nowrap}
+
+/* ---------- Entrée échelonnée ---------- */
+.cat-head,.cat-item{opacity:0;transform:translate3d(0,1.6rem,0);transition:opacity .3s ease,transform .3s ease}
+.cat-scene.on .cat-head,.cat-scene.on .cat-item{opacity:1;transform:translate3d(0,0,0);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.cat-scene.on .cat-head{transition-delay:.1s}
+.cat-scene.on .cat-item:nth-child(1){transition-delay:.3s}
+.cat-scene.on .cat-item:nth-child(2){transition-delay:.38s}
+.cat-scene.on .cat-item:nth-child(3){transition-delay:.46s}
+.cat-scene.on .cat-item:nth-child(4){transition-delay:.54s}
+.cat-scene.on .cat-item:nth-child(5){transition-delay:.62s}
+.cat-scene.on .cat-item:nth-child(6){transition-delay:.7s}
+.cat-scene.on .cat-item:nth-child(7){transition-delay:.78s}
+.cat-scene.on .cat-item:nth-child(8){transition-delay:.86s}
+.cat-scene.on .cat-item:nth-child(9){transition-delay:.94s}
+.cat-scene.on .cat-item:nth-child(10){transition-delay:1.02s}
+.cat-scene.on .cat-item:nth-child(11){transition-delay:1.1s}
+.cat-scene.on .cat-item:nth-child(12){transition-delay:1.18s}
+
+/* ---------- Léger flottement (uniquement scène visible) ---------- */
+@keyframes cat-float{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-.4rem,0)}}
+.cat-scene.on .cat-fig{animation:cat-float 4.5s ease-in-out 2s infinite alternate}
+.cat-scene.on .cat-item:nth-child(even) .cat-fig{animation-delay:3.2s}
+.cat-still .cat-fig{animation:none!important}
+
+@media (prefers-reduced-motion:reduce){
+  .cat-scene.on .cat-fig{animation:none}
+  .cat-head,.cat-item,.cat-scene.on .cat-head,.cat-scene.on .cat-item{transform:none;transition:opacity .4s ease;transition-delay:0s}
+}
+
+/* Grilles centrées quand certains éléments sont masqués */
+.cat-couleurs .cat-grid,.cat-designs .cat-grid,.cat-formes .cat-grid{justify-content:center}
+.cat-couleurs .cat-item,.cat-designs .cat-item{margin:.6rem .8rem}
+.cat-formes .cat-item{margin:0 .9rem}
+/* Catalogue dans le diaporama */
+.slide .cs-wrap{position:absolute;left:0;right:0;top:10.5rem;bottom:6rem}
+html.phone .catslide{display:none}

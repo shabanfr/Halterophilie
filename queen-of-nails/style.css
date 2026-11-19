@@ -1,0 +1,227 @@
+/* Queen of Nails — rose nude, doux, léger.
+   TV : 1rem = 1vw (conçu pour 1920×1080). Téléphone : 16px. */
+:root{
+  --blush:#FBF0ED; --petal:#F5DDD7; --nude:#EBC9BE; --rose:#D18B94; --rose-deep:#A8566B;
+  --ink:#3B2229; --ink-soft:#7A5560; --gold:#BE9468; --card:rgba(255,255,255,.62);
+  --display:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --body:"Outfit","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html.tv{font-size:1vw}
+html.phone{font-size:16px}
+html,body{height:100%}
+body{font-family:var(--body);color:var(--ink);background:var(--blush);overflow:hidden;
+  -webkit-user-select:none;user-select:none;cursor:none;-webkit-tap-highlight-color:transparent}
+html.phone body{overflow:auto;cursor:auto;-webkit-user-select:auto;user-select:auto}
+
+/* ---------- Décor ---------- */
+.bg{position:fixed;left:0;top:0;right:0;bottom:0;overflow:hidden;z-index:0;
+  background:radial-gradient(120% 90% at 15% 0%,#FFF8F5 0%,var(--blush) 45%,#F6DFD9 100%)}
+.blob{position:absolute;border-radius:50%;opacity:.55;will-change:transform}
+.b1{width:46rem;height:46rem;left:-12rem;top:-14rem;background:radial-gradient(circle at 40% 40%,#F6CFC8,rgba(246,207,200,0) 70%);animation:drift 38s ease-in-out infinite alternate}
+.b2{width:54rem;height:54rem;right:-18rem;bottom:-22rem;background:radial-gradient(circle at 50% 50%,#E9B8BC,rgba(233,184,188,0) 68%);animation:drift 46s ease-in-out infinite alternate-reverse}
+.b3{width:30rem;height:30rem;right:22rem;top:-8rem;background:radial-gradient(circle,#F3DDBF,rgba(243,221,191,0) 70%);animation:drift 52s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(4rem,3rem,0) scale(1.12)}}
+#sparks i{position:absolute;display:block;color:var(--gold);opacity:0;animation:twinkle 6s ease-in-out infinite}
+#sparks svg{width:100%;height:100%;display:block}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:.85;transform:scale(1) rotate(45deg)}}
+
+/* ---------- Scène ---------- */
+#stage{position:fixed;left:0;top:0;right:0;bottom:0;z-index:1}
+.slide{position:absolute;left:0;top:0;right:0;bottom:0;padding:5.2rem 6rem 6rem;
+  opacity:0;visibility:hidden;transform:translate3d(0,1.6rem,0);
+  transition:opacity .35s ease,transform .35s ease,visibility 0s linear .35s}
+.slide.on{opacity:1;visibility:visible;transform:none;transition:opacity .7s ease .3s,transform .7s cubic-bezier(.2,.7,.2,1) .3s}
+
+/* Marque en haut (diapos de contenu) */
+.top{position:absolute;left:6rem;top:3.2rem;display:flex;align-items:center}
+.top svg{width:4.4rem;height:3.7rem;margin-right:1.1rem}
+.top b{font:600 1.7rem/1 var(--display);letter-spacing:.02em;color:var(--ink)}
+.top small{display:block;font:400 1.1rem/1 var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-top:.45rem}
+
+/* ---------- Hero ---------- */
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.hero .mark{width:15rem;height:12.5rem;position:relative;margin-bottom:1rem}
+.hero .mark svg{width:100%;height:100%;display:block;filter:drop-shadow(0 1.2rem 1.8rem rgba(168,86,107,.22))}
+.hero .mark:after{content:"";position:absolute;left:0;top:0;right:0;bottom:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.75) 50%,transparent 60%);
+  -webkit-mask:url(icons/mark.svg) center/contain no-repeat;mask:url(icons/mark.svg) center/contain no-repeat;
+  background-size:250% 100%;background-position:130% 0;animation:gloss 7s ease-in-out 1.2s infinite;opacity:.0}
+@keyframes gloss{0%{background-position:130% 0;opacity:0}12%{opacity:.9}40%{background-position:-30% 0;opacity:.9}55%,100%{background-position:-30% 0;opacity:0}}
+.hero h1{font:400 7.6rem/.95 var(--display);letter-spacing:-.015em;color:var(--ink)}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--rose-deep)}
+.hero p{margin-top:1.5rem;font:400 1.8rem/1.2 var(--body);letter-spacing:.34em;text-transform:uppercase;color:var(--ink-soft)}
+.hero .hands{position:absolute;left:0;right:0;bottom:4.4rem;display:flex;justify-content:center}
+
+/* ---------- Prestations ---------- */
+.menu{display:flex}
+.menu .left{padding-top:3.4rem;width:30%;display:flex;flex-direction:column;justify-content:center;padding-right:3rem}
+.menu .kicker{font:500 1.4rem/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep)}
+.menu h2{margin-top:1.2rem;font:400 4.6rem/1.02 var(--display);letter-spacing:-.01em}
+.menu h2 em{font-style:italic;color:var(--rose-deep)}
+.menu .intro{margin-top:1.8rem;font:400 1.8rem/1.4 var(--body);color:var(--ink-soft);max-width:26rem}
+.menu .nails{margin-top:3rem}
+.menu .right{flex:1;display:flex;flex-direction:column;justify-content:center}
+.list{background:var(--card);border:1px solid rgba(255,255,255,.9);border-radius:2.4rem;
+  box-shadow:0 2rem 4rem rgba(168,86,107,.12);padding:1.4rem 3rem}
+.row{display:flex;align-items:center;padding:1.5rem 0;border-bottom:1px solid rgba(168,86,107,.14)}
+.row:last-child{border-bottom:0}
+.row .name{flex:1}
+.row .name b{display:block;font:600 2.4rem/1.15 var(--body);color:var(--ink)}
+.row .name span{display:block;margin-top:.35rem;font:400 1.6rem/1.2 var(--body);color:var(--ink-soft)}
+.row .time{font:500 1.6rem/1 var(--body);color:var(--ink-soft);margin-right:2.4rem;white-space:nowrap}
+.row .price{font:500 3.6rem/1 var(--display);color:var(--rose-deep);min-width:7rem;text-align:right;white-space:nowrap}
+.row .price small{font:400 1.25rem/1 var(--body);color:var(--ink-soft);margin-right:.5rem;letter-spacing:.04em}
+.row .price i{font-style:normal;font-size:1.8rem;margin-left:.2rem}
+
+/* ---------- Réservation / QR ---------- */
+.book{display:flex;align-items:center;justify-content:center}
+.book .qr{width:30rem;height:30rem;background:#fff;border-radius:2.2rem;padding:0;overflow:hidden;margin-right:5rem;
+  box-shadow:0 2rem 4rem rgba(168,86,107,.18);flex:none}
+.book .qr svg{width:100%;height:100%;display:block}
+.book .txt{max-width:42rem}
+.book .kicker{font:500 1.4rem/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep)}
+.book h2{margin-top:1.3rem;font:400 5.4rem/1.02 var(--display)}
+.book h2 em{font-style:italic;color:var(--rose-deep)}
+.book p{margin-top:1.6rem;font:300 1.7rem/1.45 var(--body);color:var(--ink-soft)}
+.book ul{list-style:none;margin-top:2rem}
+.book li{font:400 1.5rem/1.3 var(--body);color:var(--ink);margin-top:.7rem}
+.book li b{font-weight:500;color:var(--rose-deep);margin-right:.7rem}
+
+/* ---------- Mains décoratives ---------- */
+.nails{display:flex;align-items:flex-end}
+.nails svg{display:block;margin-right:.9rem;filter:drop-shadow(0 .5rem .8rem rgba(168,86,107,.18))}
+.nails svg:last-child{margin-right:0}
+.hero .nails svg{animation:float 6s ease-in-out infinite}
+.hero .nails svg:nth-child(2){animation-delay:-1.2s}.hero .nails svg:nth-child(3){animation-delay:-2.4s}
+.hero .nails svg:nth-child(4){animation-delay:-3.6s}.hero .nails svg:nth-child(5){animation-delay:-4.8s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-.7rem)}}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;left:6rem;right:6rem;bottom:3rem;z-index:5;display:flex;align-items:center;justify-content:space-between}
+#dots{display:flex}
+#dots i{display:block;width:1rem;height:1rem;border-radius:50%;background:rgba(168,86,107,.25);margin-right:.8rem;transition:transform .4s,background-color .4s}
+#dots i.on{transform:scale(1.5);background:var(--rose-deep)}
+body.paused #dots:after{content:"Pause";margin-left:1rem;font:600 1.3rem/1 var(--body);color:var(--rose-deep)}
+.hint{font:400 1.3rem/1 var(--body);color:var(--ink-soft);letter-spacing:.06em;opacity:0;transition:opacity .4s}
+body.keys .hint{opacity:.9}
+.hint span{font-weight:500;color:var(--rose-deep)}.hint .sep{margin:0 .6rem;color:var(--ink-soft)}
+#bar{display:none}
+#bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--nude),var(--rose),var(--rose-deep));transform-origin:0 50%;transform:scaleX(0)}
+#bar.run i{animation:run linear forwards}
+@keyframes run{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#bar.paused i{animation-play-state:paused}
+
+/* ---------- Téléphone : liste verticale ---------- */
+html.phone #stage{position:relative;z-index:1;padding:1rem 1rem 3rem;max-width:34rem;margin:0 auto}
+html.phone .bg{position:fixed}
+html.phone #hud,html.phone #bar{display:none}
+html.phone .slide{position:static;opacity:1;visibility:visible;transform:none;padding:0;margin-bottom:1.6rem;transition:none}
+html.phone .top{display:none}
+html.phone .hero{padding:2.2rem 0 .6rem}
+html.phone .hero .mark{width:11rem;height:9.2rem;margin-bottom:.4rem}
+html.phone .hero h1{font-size:3.2rem}
+html.phone .hero p{font-size:.8rem;margin-top:.9rem}
+html.phone .hero .hands{position:static;margin-top:1.4rem}
+html.phone .menu{display:block}
+html.phone .menu .left{width:auto;padding:0 .4rem}
+html.phone .menu .kicker{font-size:.72rem}
+html.phone .menu h2{font-size:2.3rem;margin-top:.7rem}
+html.phone .menu .intro{font-size:1rem;margin:.6rem 0 1rem}
+html.phone .menu .nails{display:none}
+html.phone .list{padding:.4rem 1.1rem;border-radius:1.4rem}
+html.phone .row{padding:.9rem 0}
+html.phone .row .name b{font-size:1.05rem}
+html.phone .row .time{display:none}
+html.phone .row .price{font-size:1.55rem;min-width:4rem}
+html.phone .row .price small{font-size:.75rem}
+html.phone .row .price i{font-size:1rem}
+html.phone .row .name span{font-size:.82rem}
+html.phone .book{display:block;text-align:center}
+html.phone .book .qr{display:none}
+html.phone .book h2{font-size:2.2rem}
+html.phone .book p{font-size:1rem}
+html.phone .book .kicker{font-size:.72rem}
+html.phone .book .txt{max-width:none}
+.install{display:none}
+html.phone .install{display:block;margin-top:1.2rem;padding:1rem 1.1rem;background:var(--card);border-radius:1.2rem;font:400 .92rem/1.45 var(--body);color:var(--ink-soft);text-align:left}
+html.phone .install b{color:var(--rose-deep);font-weight:500}
+html.phone.standalone .install{display:none}
+
+/* ---------- Panorama ---------- */
+#pano{position:fixed;left:0;top:0;right:0;bottom:0;z-index:4;opacity:0;visibility:hidden;transition:opacity 1.2s ease,visibility 0s linear 1.2s;overflow:hidden}
+#pano.on{opacity:1;visibility:visible;transition:opacity 1.2s ease}
+body.is-pano #stage,body.is-pano #hud,body.is-pano #bar{opacity:0;transition:opacity .8s}
+html.phone #pano{display:none}
+#pano .rows{position:absolute;left:0;right:0;top:10.5rem;bottom:10.4rem;display:flex;flex-direction:column;justify-content:space-between}
+.prow{display:flex;width:max-content;animation:pan 110s linear infinite;will-change:transform}
+.rows .prow:nth-child(2){animation-duration:150s;margin-left:-14rem}
+@keyframes pan{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+#pano .rows{-webkit-mask:linear-gradient(90deg,transparent,#000 9rem,#000 calc(100% - 9rem),transparent);mask:linear-gradient(90deg,transparent,#000 9rem,#000 calc(100% - 9rem),transparent)}
+.pc{flex:none;width:26rem;height:17rem;margin-right:2.4rem;border-radius:2.2rem;position:relative;overflow:hidden;box-shadow:0 .8rem 1.6rem rgba(168,86,107,.14)}
+.pc.art .st{position:absolute;width:1.6rem;height:1.6rem;color:#fff;opacity:.85}
+.pc.photo{background-size:cover;background-position:center}
+.pc.svc{background:var(--card);border:1px solid rgba(255,255,255,.9);padding:2.4rem 2.6rem;display:flex;flex-direction:column;justify-content:center}
+.pc.svc small{font:500 1.3rem/1 var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--rose-deep)}
+.pc.svc b{margin-top:1.1rem;font:600 2.2rem/1.15 var(--body);color:var(--ink)}
+.pc.svc span{margin-top:1rem;font:500 3rem/1 var(--display);color:var(--rose-deep)}
+.pc.quote{background:linear-gradient(150deg,#FFF6F2,#F5DDD7);display:flex;align-items:center;padding:2.6rem}
+.pc.quote p{font:italic 400 2.3rem/1.2 var(--display);color:var(--rose-deep)}
+.pc.brand{background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.pc.brand svg{width:7.2rem;height:6rem}
+.pc.brand b{margin-top:.8rem;font:400 2.6rem/1 var(--display);color:#FBF0ED}
+.pc.brand small{margin-top:.8rem;font:400 1.15rem/1 var(--body);letter-spacing:.3em;text-transform:uppercase;color:#E3C3BA}
+#pano .top{z-index:5}
+.pqr{position:absolute;right:6rem;bottom:1rem;z-index:5;display:flex;align-items:center;background:#fff;border-radius:1.2rem;padding:.5rem 1.2rem .5rem .5rem;box-shadow:0 .6rem 1.6rem rgba(168,86,107,.18)}
+.pqr svg{width:7.4rem;height:7.4rem;display:block}
+.pqr span{margin-left:1rem;font:500 1.5rem/1 var(--body);color:var(--rose-deep)}
+
+html.tv .row{opacity:0;transform:translate3d(2rem,0,0);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.2,1)}
+html.tv .slide.on .row{opacity:1;transform:none}
+html.tv .slide.on .row:nth-child(1){transition-delay:.45s}html.tv .slide.on .row:nth-child(2){transition-delay:.57s}
+html.tv .slide.on .row:nth-child(3){transition-delay:.69s}html.tv .slide.on .row:nth-child(4){transition-delay:.81s}
+body.is-pano .blob,body.is-pano #sparks i,body.is-pano .hero .nails svg{animation-play-state:paused}
+#pano:not(.on) .prow{animation-play-state:paused}
+
+#pano .rows{transition:opacity .8s ease}
+#pano.scene-other .rows,#pano.scene-other .pqr{opacity:0}
+#pano .pqr{transition:opacity .8s ease}
+#pano .scenes{position:absolute;left:0;right:0;top:10.5rem;bottom:6rem;pointer-events:none}
+
+#pair{position:fixed;right:3rem;top:2.6rem;z-index:8;display:flex;align-items:center;background:rgba(255,255,255,.92);border-radius:1.6rem;padding:1rem 1.6rem 1rem 1rem;box-shadow:0 .8rem 1.8rem rgba(168,86,107,.2);opacity:0;visibility:hidden;transform:translate3d(0,-1rem,0);transition:opacity .6s,transform .6s,visibility 0s linear .6s}
+#pair.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s,transform .6s}
+#pair .pq{width:8.4rem;height:8.4rem;margin-right:1.4rem;flex:none}
+#pair .pq svg{width:100%;height:100%;display:block}
+#pair b{display:block;font:600 1.5rem/1.1 var(--body);color:var(--ink)}
+#pair span{display:block;margin-top:.4rem;font:400 1.2rem/1.2 var(--body);color:var(--ink-soft)}
+#pair em{display:block;margin-top:.6rem;font:600 1.4rem/1 var(--body);font-style:normal;letter-spacing:.2em;color:var(--rose-deep)}
+html.phone #pair{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  .prow{animation:none}
+  .blob,#sparks i,.hero .nails svg,.hero .mark:after{animation:none}
+}
+
+.menu .art-wrap{margin-top:1.8rem;width:28rem;overflow:hidden}
+.menu .art-wrap .sa-svg{overflow:hidden}
+html.phone .menu .art-wrap{display:none}
+
+/* ---------- Réalisations (photos) ---------- */
+.gal-row{display:flex;align-items:center;justify-content:flex-end}
+.gal-ph{width:22rem;height:36rem;margin-left:2rem;border-radius:2.2rem;background-size:cover;background-position:center 30%;background-color:var(--petal);box-shadow:0 1.2rem 2.4rem rgba(168,86,107,.2);flex:none}
+html.tv .gal.on .gal-ph{animation:galIn .8s cubic-bezier(.2,.7,.2,1) both}
+html.tv .gal.on .gal-ph:nth-child(2){animation-delay:.12s}html.tv .gal.on .gal-ph:nth-child(3){animation-delay:.24s}html.tv .gal.on .gal-ph:nth-child(4){animation-delay:.36s}
+@keyframes galIn{from{opacity:0;transform:translate3d(0,2rem,0)}to{opacity:1;transform:none}}
+html.phone .gal-row{flex-wrap:wrap;justify-content:center}
+html.phone .gal-ph{width:46%;height:16rem;margin:.5rem 2%}
+.gal-scene{justify-content:center}
+.gal-scene .gs-h{position:absolute;left:6rem;top:0}
+.gal-scene .gs-h span{display:block;font:500 1.4rem/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep)}
+.gal-scene .gs-h b{display:block;margin-top:1rem;font:400 4.6rem/1 var(--display)}
+.gal-scene .gs-h em{font-style:italic;color:var(--rose-deep)}
+.gal-scene .gs-frames{position:absolute;left:0;right:0;top:9rem;bottom:0;display:flex;align-items:center;justify-content:center}
+.gal-scene .gs-f{display:block;width:22rem;height:28rem;margin:0 1.6rem;border-radius:2.4rem;background-size:cover;background-position:center 30%;background-color:var(--petal);box-shadow:0 1.2rem 2.4rem rgba(168,86,107,.22);flex:none}
+.gal-scene .gs-c{width:26rem;height:32rem}
+.gal-scene .gs-l{transform:rotate(-3deg)}.gal-scene .gs-r{transform:rotate(3deg)}
+.gal-scene .gs-in{animation:gsIn 1s ease both}
+@keyframes gsIn{from{opacity:0}to{opacity:1}}

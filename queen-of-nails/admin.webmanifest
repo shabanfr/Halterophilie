@@ -1,0 +1,15 @@
+{
+  "name": "Queen of Nails – Gestion",
+  "short_name": "QoN Gestion",
+  "description": "Modifier les prix, prestations, photos et temps de l'écran.",
+  "start_url": "admin.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FBF0ED",
+  "theme_color": "#F8E6E2",
+  "lang": "fr",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
